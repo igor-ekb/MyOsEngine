@@ -1,7 +1,6 @@
 ﻿using OsEngine.Commands;
 using OsEngine.Entity;
 using OsEngine.Robots.FrontRunner.Models;
-using OsEngine.Robots.MyRobots;
 using OsEngine.Robots.MyRobots.ViewModels;
 using System;
 using System.Collections.Generic;
