@@ -1,0 +1,64 @@
+﻿<Window x:Class="OsEngine.Robots.FrontRunner.Views.FrontRunnerUi"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OsEngine.Robots.FrontRunner.Views"
+        mc:Ignorable="d"
+        Title="FrontRunnerUi" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="80"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Крупный Объем"/>
+        <TextBlock Text="Отступ" Grid.Row="1"/>
+        <TextBlock Text="Тейк Профит" Grid.Row="2"/>
+        <TextBlock Text="Лот" Grid.Row="3"/>
+        <TextBlock Text="Работа в LONG" Grid.Row="4"/>
+        <TextBlock Text="Работа в SHORT" Grid.Row="5"/>
+        <TextBlock Text="Check Position" Grid.Row="6"/>
+
+        <TextBox Text="{Binding BigVolume}" Grid.Row="0" Grid.Column="1"/>
+        <TextBox Text="{Binding Offset}" Grid.Row="1" Grid.Column="1"/>
+        <TextBox Text="{Binding Take}" Grid.Row="2" Grid.Column="1"/>
+        <TextBox Text="{Binding Lot}" Grid.Row="3" Grid.Column="1"/>
+        <TextBox Text="{Binding UseLong}" Grid.Row="4" Grid.Column="1"/>
+        <TextBox Text="{Binding UseShort}" Grid.Row="5" Grid.Column="1"/>
+        <TextBox Text="{Binding CheckPos}" Grid.Row="6" Grid.Column="1"/>
+ 
+        <Button Content="{Binding Edit}"
+                Command="{Binding CommandStart}" 
+                Grid.Column="1" Grid.Row="7"/>
+
+        <TextBlock Text="Ask Big" 
+                   Grid.Column="2" Grid.Row="0"/>
+        <TextBlock Text="Ask" Grid.Column="2" Grid.Row="1"/>
+        <TextBlock Text="Bid" Grid.Column="2" Grid.Row="2"/>
+        <TextBlock Text="Bid Big" 
+                   Grid.Column="2" Grid.Row="3"/>
+
+        <TextBlock Text="" 
+                   Grid.Column="3" Grid.Row="0"/>
+        <TextBlock Text=""
+                   Grid.Column="3" Grid.Row="1"/>
+        <TextBlock Text=""
+                   Grid.Column="3" Grid.Row="2"/>
+        <TextBlock Text="{Binding BidBig}" 
+                   Grid.Column="3" Grid.Row="3"/>
+
+    </Grid>
+</Window>
