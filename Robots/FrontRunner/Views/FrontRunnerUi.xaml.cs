@@ -26,12 +26,12 @@ namespace OsEngine.Robots.FrontRunner.Views
         {
             InitializeComponent();
             
-            vm = new VM(bot);
+            vm = new VMFrontRunner(bot);
 
             DataContext = vm;
 
         }
-        public VM vm;
+        public VMFrontRunner vm;
     }
     
 }

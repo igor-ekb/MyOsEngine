@@ -897,10 +897,11 @@
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
     <Compile Include="Robots\FrontRunner\Models\FrontRunner.cs" />
-    <Compile Include="Robots\FrontRunner\ViewModels\VM.cs" />
+    <Compile Include="Robots\FrontRunner\ViewModels\VMFrontRunner.cs" />
     <Compile Include="Robots\FrontRunner\Views\FrontRunnerUi.xaml.cs">
       <DependentUpon>FrontRunnerUi.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Robots\MyPriceChanel\MyPriceChanel.cs" />
     <Compile Include="Robots\MyRobots\MyRobot.cs" />
     <Compile Include="Robots\MyRobots\ViewModels\BaseVM.cs" />
     <Compile Include="Robots\MyRobots\ViewModels\VMMyRobot.cs" />
