@@ -93,6 +93,16 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
         public string AskNum { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
                 else return _bot.positionsS[0].Number.ToString(); } }
+
+        //public string AskNum
+        //{
+        //    get
+        //    {
+        //        if (_bot.positionsS.Count == 0) return "";
+        //        else return _bot.positionsS[0].Number.ToString();
+        //    }
+        //}
+
         public string AskState { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
                 else return _bot.positionsS[0].State.ToString(); } }
