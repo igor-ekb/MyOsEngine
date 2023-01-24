@@ -8,10 +8,16 @@
         Title="FrontRunnerUi" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="110"/>
             <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
@@ -22,7 +28,12 @@
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
             <RowDefinition Height="25"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+
         </Grid.RowDefinitions>
         <TextBlock Text="Крупный Объем"/>
         <TextBlock Text="Отступ" Grid.Row="1"/>
@@ -30,15 +41,46 @@
         <TextBlock Text="Лот" Grid.Row="3"/>
         <TextBlock Text="Работа в LONG" Grid.Row="4"/>
         <TextBlock Text="Работа в SHORT" Grid.Row="5"/>
-        <!--<TextBlock Text="Check Position" Grid.Row="6"/>-->
+        
+        <TextBlock Text="Short" Grid.Row="10"/>
+        <TextBlock Text="Long" Grid.Row="11"/>
+ 
+        <TextBlock Text="Number" Grid.Row="9" Grid.Column="1"/>
+        <TextBlock Text="{Binding AskNum}" Grid.Row="10" Grid.Column="1"/>
+        <TextBlock Text="{Binding BidNum}" Grid.Row="11" Grid.Column="1"/>
+
+        <TextBlock Text="State" Grid.Row="9" Grid.Column="2"/>
+        <TextBlock Text="{Binding AskState}" Grid.Row="10" Grid.Column="2"/>
+        <TextBlock Text="{Binding BidState}" Grid.Row="11" Grid.Column="2"/>
+
+        <TextBlock Text="Entry" Grid.Row="9" Grid.Column="3"/>
+        <TextBlock Text="{Binding AskEntry}" Grid.Row="10" Grid.Column="3"/>
+        <TextBlock Text="{Binding BidEntry}" Grid.Row="11" Grid.Column="3"/>
+
+        <TextBlock Text="Volume" Grid.Row="9" Grid.Column="4"/>
+        <TextBlock Text="{Binding AskVolume}" Grid.Row="10" Grid.Column="4"/>
+        <TextBlock Text="{Binding BidVolume}" Grid.Row="11" Grid.Column="4"/>
+
+        <TextBlock Text="Price" Grid.Row="9" Grid.Column="5"/>
+        <TextBlock Text="{Binding Ask0}" Grid.Row="10" Grid.Column="5"/>
+        <TextBlock Text="{Binding Bid0}" Grid.Row="11" Grid.Column="5"/>
+        
+        <TextBlock Text="Profit" Grid.Row="9" Grid.Column="6"/>
+        <TextBlock Text="{Binding AskProfit}" Grid.Row="10" Grid.Column="6"/>
+        <TextBlock Text="{Binding BidProfit}" Grid.Row="11" Grid.Column="6"/>
+
+        <TextBlock Text="Take" Grid.Row="9" Grid.Column="7"/>
+        <TextBlock Text="{Binding AskTake}" Grid.Row="10" Grid.Column="7"/>
+        <TextBlock Text="{Binding BidTake}" Grid.Row="11" Grid.Column="7"/>
+        
+        <TextBlock Text="Stop" Grid.Row="9" Grid.Column="8"/>
+        <TextBlock Text="{Binding AskStop}" Grid.Row="10" Grid.Column="8"/>
+        <TextBlock Text="{Binding BidStop}" Grid.Row="11" Grid.Column="8"/>
 
         <TextBox Text="{Binding BigVolume}" Grid.Row="0" Grid.Column="1"/>
         <TextBox Text="{Binding Offset}" Grid.Row="1" Grid.Column="1"/>
         <TextBox Text="{Binding Take}" Grid.Row="2" Grid.Column="1"/>
         <TextBox Text="{Binding Lot}" Grid.Row="3" Grid.Column="1"/>
-        <!--<TextBox Text="{Binding UseLong}" Grid.Row="4" Grid.Column="1"/>-->
-        <!--<TextBox Text="{Binding UseShort}" Grid.Row="5" Grid.Column="1"/>-->
-        <!--<TextBox Text="{Binding CheckPos}" Grid.Row="6" Grid.Column="1"/>-->
 
         <Button Content="{Binding UseLong}"
                 Command="{Binding CommandLong}" 
@@ -62,9 +104,9 @@
 
         <TextBlock Text="{Binding BigAsk}"
                    Grid.Column="3" Grid.Row="0"/>
-        <TextBlock Text=""
+        <TextBlock Text="{Binding Ask0}"
                    Grid.Column="3" Grid.Row="1"/>
-        <TextBlock Text=""
+        <TextBlock Text="{Binding Bid0}"
                    Grid.Column="3" Grid.Row="2"/>
         <TextBlock Text="{Binding BigBid}" 
                    Grid.Column="3" Grid.Row="3"/>

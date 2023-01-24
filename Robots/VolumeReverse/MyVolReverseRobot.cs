@@ -25,8 +25,7 @@ namespace OsEngine.Robots.VolumeReverse
     ///                     расстояние равное стоп лоссу.
     ///                 2. Выставить два тейк профита - первый на величину стоп лосса,
     ///                     а второй на заданный тейк (стоп * profitKoef) Без переноса в безубыток.
-    ///          PS: по своей инициативе добавлена возможность прорисовки на графике индикаторов быстрая и медленная SMA.
-    ///          
+
     ///             Условия выставления заявок выставляются в параметрах Робота.
     ///             
     /// </summary>
@@ -54,29 +53,11 @@ namespace OsEngine.Robots.VolumeReverse
 
             _dividePos = this.CreateParameter("Divide Pos ?", "No", new[] { "No", "Yes" });
 
-            _smaPeriod1 = this.CreateParameter("Период SMA1", 20, 5, 600, 1);
-
-            _smaPeriod2 = this.CreateParameter("Период SMA2", 120, 5, 600, 1);
-
-            _sma1 = new MovingAverage("SMA" + _smaPeriod1.ValueInt , true) { Lenght = _smaPeriod1.ValueInt,
-                TypeCalculationAverage = MovingAverageTypeCalculation.Exponential, ColorBase = Color.LightYellow };
-
-            _sma2 = new MovingAverage( "SMA" + _smaPeriod2.ValueInt, true) { Lenght = _smaPeriod2.ValueInt,
-                TypeCalculationAverage = MovingAverageTypeCalculation.Exponential, ColorBase = Color.LightSkyBlue };
-
-            _tab.CreateCandleIndicator( _sma1,"PRIME");
-
-            _tab.CreateCandleIndicator( _sma2, "PRIME");
-
             _tab.CandleFinishedEvent += _tab_CandleFinishedEvent;
 
             _tab.PositionOpeningSuccesEvent += _tab_PositionOpeningSuccesEvent;
 
             _tab.PositionClosingSuccesEvent += _tab_PositionClosingSuccesEvent;
-
-            _smaPeriod1.ValueChange += _smaPeriod1_ValueChange;
-
-            _smaPeriod2.ValueChange += _smaPeriod2_ValueChange;
 
         }
 
@@ -120,16 +101,6 @@ namespace OsEngine.Robots.VolumeReverse
         private StrategyParameterString _dividePos;
 
         /// <summary>
-        /// Период для SMA1
-        /// </summary>
-        private StrategyParameterInt _smaPeriod1;
-
-        /// <summary>
-        /// Период для SMA2
-        /// </summary>
-        private StrategyParameterInt _smaPeriod2;
-
-        /// <summary>
         /// Средний объем
         /// </summary>
         private decimal _averageVolume;
@@ -144,33 +115,10 @@ namespace OsEngine.Robots.VolumeReverse
         /// </summary>
         private decimal _lowCandle = 0;
 
-        /// <summary>
-        /// Индикатор1 для построения быстрой SMA1
-        /// </summary>
-        private MovingAverage _sma1;
-
-        /// <summary>
-        /// Индикатор2 для построения медленной SMA2
-        /// </summary>
-        private MovingAverage _sma2;
-
         #endregion
 
         #region Methods =============================================================
 
-        // Изменение периода Быстрой SMA1
-        private void _smaPeriod1_ValueChange()
-        {
-            _sma1.Lenght = _smaPeriod1.ValueInt;
-            _sma1.ColorBase = Color.DarkRed;
-        }
-
-        // Изменение периода медленной SMA2
-        private void _smaPeriod2_ValueChange()
-        {
-            _sma2.Lenght = _smaPeriod2.ValueInt;
-            _sma2.ColorBase = Color.Indigo;
-        }
 
         /// <summary>
         /// Проверка условий для выставления заявки
