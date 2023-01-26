@@ -36,7 +36,7 @@ namespace OsEngine.Robots.FrontRunner.Models
         #region Fields =================================================================
 
         /// <summary>
-        /// Создаем для  робота FrontRunner собственное событие
+        /// Создаем для  робота FrontRunner событие изменение данных EventMD
         /// </summary>
         // Объявляем делегат
         public delegate void eventMD();
@@ -84,8 +84,6 @@ namespace OsEngine.Robots.FrontRunner.Models
 
                 if (Edit == Edit.Stop)
                 {
-                    // Генерируем событие EventMD
-                    EventMD?.Invoke();
 
                     foreach (Position pos in positions)
                     {
@@ -105,7 +103,9 @@ namespace OsEngine.Robots.FrontRunner.Models
                     positionsS = _tab.PositionOpenShort;
                     BigBid = "";
                     BigAsk = "";
-
+  
+                    // Генерируем событие EventMD
+                    EventMD?.Invoke();
                 }
                 else if (Edit == Edit.Start)
                 {
@@ -261,6 +261,9 @@ namespace OsEngine.Robots.FrontRunner.Models
             {
                 return;
             }
+
+            positionsS = _tab.PositionOpenShort;
+            positionsL = _tab.PositionOpenLong;
 
             // Генерируем событие EventMD
             EventMD?.Invoke();

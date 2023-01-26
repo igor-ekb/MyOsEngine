@@ -37,7 +37,6 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
             set
             {
                 _bot.BigVolume = value;
-
                 OnPropertyChanged(nameof(BigVolume));
             }
         }
@@ -45,11 +44,10 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
 
         public int Offset
         {
-            get => _bot.Offset;
+            get => _bot.Offset;                         // Считываем начальное значение
             set
             {
                 _bot.Offset = value;
-
                 OnPropertyChanged(nameof(Offset));
             }
         }
@@ -60,7 +58,6 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
             set
             {
                 _bot.Take = value;
-
                 OnPropertyChanged(nameof(Take));
             }
         }
@@ -71,7 +68,6 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
             set
             {
                 _bot.Lot = value;
-
                 OnPropertyChanged(nameof(Lot));
             }
         }
@@ -79,11 +75,9 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
         public Edit Edit
         {
             get => _bot.Edit;
-
             set
             {
                 _bot.Edit = value;
-
                 OnPropertyChanged(nameof(Edit));
             }
         }
@@ -93,34 +87,28 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
         public string AskNum { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
                 else return _bot.positionsS[0].Number.ToString(); } }
-
-        //public string AskNum
-        //{
-        //    get
-        //    {
-        //        if (_bot.positionsS.Count == 0) return "";
-        //        else return _bot.positionsS[0].Number.ToString();
-        //    }
-        //}
-
         public string AskState { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
                 else return _bot.positionsS[0].State.ToString(); } }
         public string AskEntry { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.positionsS[0].EntryPrice.ToString(); } }
+                else return _bot.positionsS[0].EntryPrice.ToStringWithNoEndZero(); } }
         public string AskVolume { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.positionsS[0].OpenVolume.ToString(); } }
+                else return _bot.positionsS[0].OpenVolume.ToStringWithNoEndZero(); } }
+
+        public string AskNow { get { if (_bot.positionsS == null) return "";
+                else if (_bot.positionsS.Count == 0) return "";
+                else return _bot.Ask0; } }
         public string AskProfit { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.positionsS[0].ProfitPortfolioPunkt.ToString(); } }
+                else return _bot.positionsS[0].ProfitPortfolioPunkt.ToStringWithNoEndZero(); } }
         public string AskTake { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.positionsS[0].ProfitOrderPrice.ToString(); } }
+                else return _bot.positionsS[0].ProfitOrderPrice.ToStringWithNoEndZero(); } }
         public string AskStop { get { if (_bot.positionsS == null) return "";
                 else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.positionsS[0].StopOrderRedLine.ToString(); } }
+                else return _bot.positionsS[0].StopOrderRedLine.ToStringWithNoEndZero(); } }
  
         public string BigBid { get => _bot.BigBid; }
         public string Bid0 { get => _bot.Bid0; }
@@ -132,19 +120,23 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
                 else return _bot.positionsL[0].State.ToString(); } }
         public string BidEntry { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
-                else return _bot.positionsL[0].EntryPrice.ToString(); } }
+                else return _bot.positionsL[0].EntryPrice.ToStringWithNoEndZero(); } }
         public string BidVolume { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
                 else return _bot.positionsL[0].OpenVolume.ToString(); } }
+
+        public string BidNow { get { if (_bot.positionsS == null) return "";
+                else if (_bot.positionsS.Count == 0) return "";
+                else return _bot.Ask0; } }
         public string BidProfit { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
-                else return _bot.positionsL[0].ProfitPortfolioPunkt.ToString(); } }
+                else return _bot.positionsL[0].ProfitPortfolioPunkt.ToStringWithNoEndZero(); } }
         public string BidTake { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
-                else return _bot.positionsL[0].ProfitOrderPrice.ToString(); } }
+                else return _bot.positionsL[0].ProfitOrderPrice.ToStringWithNoEndZero(); } }
         public string BidStop { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
-                else return _bot.positionsL[0].StopOrderRedLine.ToString(); } }
+                else return _bot.positionsL[0].StopOrderRedLine.ToStringWithNoEndZero(); } }
 
 
         public YesNo UseLong
@@ -225,26 +217,47 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
         {
             // Значение полей передаем в window
 
-            if (BigAsk != "" && BigAsk != null) OnPropertyChanged(nameof(BigAsk));
-            if (Ask0 != "" && Ask0 != null) OnPropertyChanged(nameof(Ask0));
-            if (AskNum != "" && AskNum != null) OnPropertyChanged(nameof(AskNum));
-            if (AskState != "" && AskState != null) OnPropertyChanged(nameof(AskState));
-            if (AskEntry != "" && AskEntry != null) OnPropertyChanged(nameof(AskEntry));
-            if (AskVolume != "" && AskVolume != null) OnPropertyChanged(nameof(AskVolume));
-            if (AskProfit != "" && AskProfit != null) OnPropertyChanged(nameof(AskProfit));
-            if (AskTake != "" && AskTake != null) OnPropertyChanged(nameof(AskTake));
-            if (AskStop != "" && AskStop != null) OnPropertyChanged(nameof(AskStop));
+            //if (BigAsk != "" && BigAsk != null) OnPropertyChanged(nameof(BigAsk));
+            //if (Ask0 != "" && Ask0 != null) OnPropertyChanged(nameof(Ask0));
+            //if (AskNum != "" && AskNum != null) OnPropertyChanged(nameof(AskNum));
+            //if (AskState != "" && AskState != null) OnPropertyChanged(nameof(AskState));
+            //if (AskEntry != "" && AskEntry != null) OnPropertyChanged(nameof(AskEntry));
+            //if (AskVolume != "" && AskVolume != null) OnPropertyChanged(nameof(AskVolume));
+            //if (AskProfit != "" && AskProfit != null) OnPropertyChanged(nameof(AskProfit));
+            //if (AskTake != "" && AskTake != null) OnPropertyChanged(nameof(AskTake));
+            //if (AskStop != "" && AskStop != null) OnPropertyChanged(nameof(AskStop));
 
+            OnPropertyChanged(nameof(BigAsk));
+            OnPropertyChanged(nameof(Ask0));
+            OnPropertyChanged(nameof(AskNum));
+            OnPropertyChanged(nameof(AskState));
+            OnPropertyChanged(nameof(AskEntry));
+            OnPropertyChanged(nameof(AskVolume));
+            OnPropertyChanged(nameof(AskNow));
+            OnPropertyChanged(nameof(AskProfit));
+            OnPropertyChanged(nameof(AskTake));
+            OnPropertyChanged(nameof(AskStop));
 
-            if (BigBid != "" && BigBid != null) OnPropertyChanged(nameof(BigBid));
-            if (Bid0 != "" && Bid0 != null) OnPropertyChanged(nameof(Bid0));
-            if (BidNum != "" && BidNum != null) OnPropertyChanged(nameof(BidNum));
-            if (BidState != "" && BidState != null) OnPropertyChanged(nameof(BidState));
-            if (BidEntry != "" && BidEntry != null) OnPropertyChanged(nameof(BidEntry));
-            if (BidVolume != "" && BidVolume != null) OnPropertyChanged(nameof(BidVolume));
-            if (BidProfit != "" && BidProfit != null) OnPropertyChanged(nameof(BidProfit));
-            if (BidTake != "" && BidTake != null) OnPropertyChanged(nameof(BidTake));
-            if (BidStop != "" && BidStop != null) OnPropertyChanged(nameof(BidStop));
+            //if (BigBid != "" && BigBid != null) OnPropertyChanged(nameof(BigBid));
+            //if (Bid0 != "" && Bid0 != null) OnPropertyChanged(nameof(Bid0));
+            //if (BidNum != "" && BidNum != null) OnPropertyChanged(nameof(BidNum));
+            //if (BidState != "" && BidState != null) OnPropertyChanged(nameof(BidState));
+            //if (BidEntry != "" && BidEntry != null) OnPropertyChanged(nameof(BidEntry));
+            //if (BidVolume != "" && BidVolume != null) OnPropertyChanged(nameof(BidVolume));
+            //if (BidProfit != "" && BidProfit != null) OnPropertyChanged(nameof(BidProfit));
+            //if (BidTake != "" && BidTake != null) OnPropertyChanged(nameof(BidTake));
+            //if (BidStop != "" && BidStop != null) OnPropertyChanged(nameof(BidStop));
+
+            OnPropertyChanged(nameof(BigBid));
+            OnPropertyChanged(nameof(Bid0));
+            OnPropertyChanged(nameof(BidNum));
+            OnPropertyChanged(nameof(BidState));
+            OnPropertyChanged(nameof(BidEntry));
+            OnPropertyChanged(nameof(BidVolume));
+            OnPropertyChanged(nameof(BidNow));
+            OnPropertyChanged(nameof(BidProfit));
+            OnPropertyChanged(nameof(BidTake));
+            OnPropertyChanged(nameof(BidStop));
         }
 
         private void Start(object obj)

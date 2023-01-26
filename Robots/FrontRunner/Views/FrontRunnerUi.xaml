@@ -17,6 +17,8 @@
             <ColumnDefinition Width="80"/>
             <ColumnDefinition Width="80"/>
             <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="80"/>
 
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -62,8 +64,8 @@
         <TextBlock Text="{Binding BidVolume}" Grid.Row="11" Grid.Column="4"/>
 
         <TextBlock Text="Price" Grid.Row="9" Grid.Column="5"/>
-        <TextBlock Text="{Binding Ask0}" Grid.Row="10" Grid.Column="5"/>
-        <TextBlock Text="{Binding Bid0}" Grid.Row="11" Grid.Column="5"/>
+        <TextBlock Text="{Binding AskNow}" Grid.Row="10" Grid.Column="5"/>
+        <TextBlock Text="{Binding BidNow}" Grid.Row="11" Grid.Column="5"/>
         
         <TextBlock Text="Profit" Grid.Row="9" Grid.Column="6"/>
         <TextBlock Text="{Binding AskProfit}" Grid.Row="10" Grid.Column="6"/>
