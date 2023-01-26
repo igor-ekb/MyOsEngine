@@ -47,7 +47,7 @@ namespace OsEngine.Robots.FrontRunner.Models
 
         public int Offset = 2;
 
-        public int Take = 6;
+        public int Take = 20;
 
         public decimal Lot = 1m;
 
@@ -90,15 +90,14 @@ namespace OsEngine.Robots.FrontRunner.Models
                         if (pos.State == PositionStateType.Opening)
                         {
                             _tab.CloseAllOrderToPosition(pos, "order Edit_Stoped");
-                            Log("order close5(" + positions.Count + ")       = ", pos);
+                            Log("order Edit.Stop5(" + positions.Count + ")   = ", pos);
                         }
                         else if (pos.State == PositionStateType.Open)
                         {
                             _tab.CloseAtMarket(pos, pos.OpenVolume, "pos Edit_Stoped");
-                            Log("pos close5(" + positions.Count + ")         = ", pos);
+                            Log("pos Edit.Stop5(" + positions.Count + ")     = ", pos);
                         }
                     }
-                    positions = _tab.PositionsOpenAll;
                     positionsL = _tab.PositionOpenLong;
                     positionsS = _tab.PositionOpenShort;
                     BigBid = "";
@@ -119,7 +118,7 @@ namespace OsEngine.Robots.FrontRunner.Models
                         {
                             // Выставляем Take Profit
                             decimal takePrice = pos.EntryPrice - Take * _tab.Securiti.PriceStep;
-                            _tab.CloseAtProfit(pos, takePrice, takePrice,"Take " + takePrice.ToStringWithNoEndZero());
+                            _tab.CloseAtProfit(pos, takePrice, takePrice,"Edit.Take " + takePrice.ToStringWithNoEndZero());
 
                             // Уровни StopLoss
                             //decimal StopActive = Convert.ToDecimal(BigAsk);
@@ -138,7 +137,7 @@ namespace OsEngine.Robots.FrontRunner.Models
                         {
                             // Выставляем Take Profit
                             decimal takePrice = pos.EntryPrice + Take * _tab.Securiti.PriceStep;
-                            _tab.CloseAtProfit(pos, takePrice, takePrice, "Take " + takePrice.ToStringWithNoEndZero());
+                            _tab.CloseAtProfit(pos, takePrice, takePrice, "Edit.Take " + takePrice.ToStringWithNoEndZero());
 
                             // Уровни StopLoss
                             //decimal StopActive = Convert.ToDecimal(BigBid);
@@ -230,6 +229,12 @@ namespace OsEngine.Robots.FrontRunner.Models
 
         private void _tab_PositionChangeEvent(Position pos)
         {
+            if (pos.State != PositionStateType.Open)
+            {
+                MessageBox.Show(pos.Number.ToString() + "Статус :" + pos.State.ToString());
+
+                return;
+            }
 
             if (pos.Direction == Side.Sell)
             {
@@ -298,6 +303,19 @@ namespace OsEngine.Robots.FrontRunner.Models
                     {
                         BigAsk = pos.SignalTypeOpen;
 
+                        // Проверяем ошибку !!! функциональности Take
+                        if (pos.ProfitOrderRedLine > marketDepth.Bids[0].Price
+                            && pos.State == PositionStateType.Open)
+                        {
+
+                            MessageBox.Show("!!! Не работает Take(Short) = " + pos.ProfitOrderRedLine.ToStringWithNoEndZero()
+                                + "> Trade = " + marketDepth.Bids[0].Price.ToStringWithNoEndZero());
+
+                            // Переносим Take
+                            decimal takePrice = marketDepth.Asks[0].Price;
+                            _tab.CloseAtProfit(pos, takePrice, takePrice, "Take " + takePrice.ToStringWithNoEndZero());
+                        }
+
                         // Проверяем убыточность позиции
                         if (Convert.ToDecimal(BigAsk) <= marketDepth.Asks[0].Price
                             && pos.State == PositionStateType.Open
@@ -310,13 +328,13 @@ namespace OsEngine.Robots.FrontRunner.Models
                             continue;
                         }
 
-                        // Проверяем наличие более близкого к торговли Big Volume
+                        // Проверяем появление более близкого к трейду объема Big Volume
                         if (marketDepth.Asks[i].Price < Convert.ToDecimal(BigAsk)
                             && marketDepth.Asks[i].Ask > BigVolume )
                         {
                             if (pos.State == PositionStateType.Opening)
                             {
-                                // Закрываем ордер на открытие для переоткрытия на новом BigAsk
+                                // Закрываем заявку на открытие для переоткрытия на новом BigAsk
                                 _tab.CloseAllOrderToPosition(pos, "Order to New " + marketDepth.Asks[i].Price.ToStringWithNoEndZero());
                                 Log("orderShort close2(" + positions.Count + ")  = ", pos);
 
@@ -325,10 +343,14 @@ namespace OsEngine.Robots.FrontRunner.Models
                             else if (pos.State == PositionStateType.Open)
                             {
                                 // Переносим BigVolume на новый BigAsk
-                                //_tab.CloseAtMarket(pos, pos.OpenVolume, "Close to New " + marketDepth.Asks[i].Price.ToStringWithNoEndZero());
                                 BigAsk = marketDepth.Asks[i].Price.ToStringWithNoEndZero();
-
                                 pos.SignalTypeOpen = BigAsk;
+                                //_tab.CloseAtMarket(pos, pos.OpenVolume, "Close to New " + marketDepth.Asks[i].Price.ToStringWithNoEndZero());
+
+                                // Переносим Take
+                                decimal takePrice = marketDepth.Asks[i].Price - Take * _tab.Securiti.PriceStep;
+                                _tab.CloseAtProfit(pos, takePrice, takePrice, "Take " + takePrice.ToStringWithNoEndZero());
+
                                 Log("posShort NewBig2(" + positions.Count + ")   = ", pos);
                             }
                             // прекращаем перебор marketDepth.Asks
@@ -398,6 +420,18 @@ namespace OsEngine.Robots.FrontRunner.Models
                     {
                         BigBid = pos.SignalTypeOpen;
 
+                        // Проверяем функциональность Take
+                        if (pos.ProfitOrderRedLine < marketDepth.Asks[0].Price
+                            && pos.State == PositionStateType.Open)
+                        {
+                            MessageBox.Show("!!! Не работает Take(Long) = " + pos.ProfitOrderRedLine.ToStringWithNoEndZero()
+                                + "< Trade= " + marketDepth.Asks[0].Price.ToStringWithNoEndZero());
+
+                            // Переносим Take
+                            decimal takePrice = marketDepth.Bids[0].Price;
+                            _tab.CloseAtProfit(pos, takePrice, takePrice, "Take " + takePrice.ToStringWithNoEndZero());
+                        }
+
                         // Проверяем убыточность позиции
                         if (Convert.ToDecimal(BigBid) >= marketDepth.Bids[0].Price
                             && pos.State == PositionStateType.Open
@@ -410,7 +444,7 @@ namespace OsEngine.Robots.FrontRunner.Models
                             continue;
                         }
 
-                        // Проверяем наличие более близкого к уровню торговли Big Volume
+                        // Проверяем появление более близкого к трейду объема Big Volume
                         if (marketDepth.Bids[i].Bid > BigVolume
                             && marketDepth.Bids[i].Price > Convert.ToDecimal(pos.SignalTypeOpen))
                         {
@@ -426,9 +460,16 @@ namespace OsEngine.Robots.FrontRunner.Models
                             }
                             else if (pos.State == PositionStateType.Open)
                             {
-                                // Переставляем Big Volume - появился новый BigVolume для Buy
+                                // Переставляем Big Volume для Buy на новый уровень
+
                                 //_tab.CloseAtMarket(pos, pos.OpenVolume, "close to New " + marketDepth.Bids[i].Price.ToStringWithNoEndZero());
+                                BigBid = marketDepth.Bids[i].Price.ToStringWithNoEndZero();
                                 pos.SignalTypeOpen = BigBid;
+
+                                // Переносим Take Profit
+                                decimal takePrice = marketDepth.Bids[i].Price + Take * _tab.Securiti.PriceStep;
+                                _tab.CloseAtProfit(pos, takePrice, takePrice, "Take " + takePrice.ToStringWithNoEndZero());
+                                
                                 Log("posLong newBig2(" + positions.Count + ")      = ", pos);
                             }
 

@@ -44,38 +44,38 @@
         <TextBlock Text="Работа в LONG" Grid.Row="4"/>
         <TextBlock Text="Работа в SHORT" Grid.Row="5"/>
         
-        <TextBlock Text="Short" Grid.Row="10"/>
-        <TextBlock Text="Long" Grid.Row="11"/>
- 
-        <TextBlock Text="Number" Grid.Row="9" Grid.Column="1"/>
+        <TextBlock Text="Short" Foreground="DarkBlue" Grid.Row="10"/>
+        <TextBlock Text="Long" Foreground="DarkBlue" Grid.Row="11"/>
+
+        <TextBlock Text="Number" Foreground="DarkBlue" Grid.Row="9" Grid.Column="1"/>
         <TextBlock Text="{Binding AskNum}" Grid.Row="10" Grid.Column="1"/>
         <TextBlock Text="{Binding BidNum}" Grid.Row="11" Grid.Column="1"/>
 
-        <TextBlock Text="State" Grid.Row="9" Grid.Column="2"/>
+        <TextBlock Text="State" Foreground="DarkBlue" Grid.Row="9" Grid.Column="2"/>
         <TextBlock Text="{Binding AskState}" Grid.Row="10" Grid.Column="2"/>
         <TextBlock Text="{Binding BidState}" Grid.Row="11" Grid.Column="2"/>
 
-        <TextBlock Text="Entry" Grid.Row="9" Grid.Column="3"/>
+        <TextBlock Text="Entry" Foreground="DarkBlue" Grid.Row="9" Grid.Column="3"/>
         <TextBlock Text="{Binding AskEntry}" Grid.Row="10" Grid.Column="3"/>
         <TextBlock Text="{Binding BidEntry}" Grid.Row="11" Grid.Column="3"/>
 
-        <TextBlock Text="Volume" Grid.Row="9" Grid.Column="4"/>
+        <TextBlock Text="Volume" Foreground="DarkBlue" Grid.Row="9" Grid.Column="4"/>
         <TextBlock Text="{Binding AskVolume}" Grid.Row="10" Grid.Column="4"/>
         <TextBlock Text="{Binding BidVolume}" Grid.Row="11" Grid.Column="4"/>
 
-        <TextBlock Text="Price" Grid.Row="9" Grid.Column="5"/>
+        <TextBlock Text="Price" Foreground="DarkBlue" Grid.Row="9" Grid.Column="5"/>
         <TextBlock Text="{Binding AskNow}" Grid.Row="10" Grid.Column="5"/>
         <TextBlock Text="{Binding BidNow}" Grid.Row="11" Grid.Column="5"/>
-        
-        <TextBlock Text="Profit" Grid.Row="9" Grid.Column="6"/>
+
+        <TextBlock Text="Profit" Foreground="DarkBlue" Grid.Row="9" Grid.Column="6"/>
         <TextBlock Text="{Binding AskProfit}" Grid.Row="10" Grid.Column="6"/>
         <TextBlock Text="{Binding BidProfit}" Grid.Row="11" Grid.Column="6"/>
 
-        <TextBlock Text="Take" Grid.Row="9" Grid.Column="7"/>
+        <TextBlock Text="Take" Foreground="DarkBlue" Grid.Row="9" Grid.Column="7"/>
         <TextBlock Text="{Binding AskTake}" Grid.Row="10" Grid.Column="7"/>
         <TextBlock Text="{Binding BidTake}" Grid.Row="11" Grid.Column="7"/>
-        
-        <TextBlock Text="Stop" Grid.Row="9" Grid.Column="8"/>
+
+        <TextBlock Text="Stop" Foreground="DarkBlue" Grid.Row="9" Grid.Column="8"/>
         <TextBlock Text="{Binding AskStop}" Grid.Row="10" Grid.Column="8"/>
         <TextBlock Text="{Binding BidStop}" Grid.Row="11" Grid.Column="8"/>
 

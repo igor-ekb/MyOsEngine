@@ -41,7 +41,6 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
             }
         }
 
-
         public int Offset
         {
             get => _bot.Offset;                         // Считываем начальное значение
@@ -126,8 +125,8 @@ namespace OsEngine.Robots.FrontRunner.ViewModels
                 else return _bot.positionsL[0].OpenVolume.ToString(); } }
 
         public string BidNow { get { if (_bot.positionsS == null) return "";
-                else if (_bot.positionsS.Count == 0) return "";
-                else return _bot.Ask0; } }
+                else if (_bot.positionsL.Count == 0) return "";
+                else return _bot.Bid0; } }
         public string BidProfit { get { if (_bot.positionsL == null) return "";
                 else if (_bot.positionsL.Count == 0) return "";
                 else return _bot.positionsL[0].ProfitPortfolioPunkt.ToStringWithNoEndZero(); } }
