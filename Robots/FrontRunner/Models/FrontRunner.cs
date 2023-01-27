@@ -557,7 +557,7 @@ namespace OsEngine.Robots.FrontRunner.Models
 
             try
             {
-                using (StreamWriter writer = new StreamWriter(@"Log\" + name, true))
+                using (StreamWriter writer = new StreamWriter(@"Engine\Log\" + name, true))
                 {
                     writer.WriteLine(DateTime.Now.ToShortTimeString() + "." + DateTime.Now.Second + ":" + DateTime.Now.Millisecond);
                     writer.WriteLine(message + posState);
