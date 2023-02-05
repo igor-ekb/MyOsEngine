@@ -59,11 +59,11 @@ namespace OsEngine.Robots.MyPriceChanel
 
         private Aindicator _pc;
 
-        private StrategyParameterInt LengthUp;
+        private StrategyParameterInt LengthUp;          // Количество периодов для расчета верхней линии индикатора
 
-        private StrategyParameterInt LengthDown;
+        private StrategyParameterInt LengthDown;        // Количество периодов для расчета нижней линии индикатора
 
-        private StrategyParameterString Mode;           // Запуск /останов робота - Of/On
+        private StrategyParameterString Mode;           // Запуск /останов робота - Off/On
 
         private StrategyParameterString Strateg;        // Выбор стратегии : 1 - фикс лот, 2 - фикс риск
 
