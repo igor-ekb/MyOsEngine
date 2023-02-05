@@ -1,7 +1,6 @@
 ﻿using OsEngine.Commands;
 using OsEngine.Entity;
-using OsEngine.Robots.FrontRunner.Models;
-using OsEngine.Robots.MyRobots.ViewModels;
+using OsEngine.Robots;
 using ru.micexrts.cgate.message;
 using System;
 using System.Collections.Generic;

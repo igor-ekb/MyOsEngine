@@ -27,6 +27,8 @@ using OsEngine.Robots.VolumeReverse;
 using OsEngine.Robots.MyRobots;
 using OsEngine.Robots.FrontRunner.Models;
 using OsEngine.Robots.MyPriceChanel;
+using OsEngine.Robots.CryptoCluster;
+using OsEngine.Robots.HFT;
 
 namespace OsEngine.Robots
 {
@@ -41,6 +43,8 @@ namespace OsEngine.Robots
         public static List<string> GetNamesStrategy()
         {
             List<string> result = new List<string>();
+            result.Add("HFTRobot");
+            result.Add("MyRobotCluster");
             result.Add("MyPriceChanelFix");
             result.Add("FrontRunnerBot");
             result.Add("MyVolReverseRobot");
@@ -126,6 +130,14 @@ namespace OsEngine.Robots
                 return bot;
             }
 
+            if (nameClass == "HFTRobot")
+            {
+                bot = new HFTRobot(name, startProgram);
+            }
+            if (nameClass == "MyRobotCluster")
+            {
+                bot = new MyRobotCluster(name, startProgram);
+            }
             if (nameClass == "MyPriceChanelFix")
             {
                 bot = new MyPriceChanelFix(name, startProgram);

@@ -1,0 +1,217 @@
+﻿<UserControl x:Class="OsEngine.Views.MyRobot"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OsEngine.Views"
+        xmlns:conv="clr-namespace:OsEngine.Converters"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"
+        >
+
+    <UserControl.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="MinWidth" Value="60"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="MinWidth" Value="60"/>
+        </Style>
+
+        <conv:ConverterColorToSide x:Key="ConverterColorToSide"/>
+        <conv:ConverterIsRunToBool x:Key="ConverterIsRunToBool"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Orientation="Horizontal">
+
+            <TextBlock Text="{Binding ServerType}"
+                        FontSize="16"/>
+            <TextBlock Text="{Binding StatusServer}"
+                        Margin="10,5,0,0" Background="LightGray"
+                        FontSize="16"/>
+            <TextBlock Text="Portfolio"
+                        FontSize="16"/>
+            <ComboBox ItemsSource="{Binding StringPortfolios}"
+                SelectedItem="{Binding StringPortfolio}"
+                        FontSize="16"/>
+            <TextBlock Text="Emitent" Margin="5,2"
+                        FontSize="16"/>
+            <Button Content="Select Security"
+                Command="{Binding CommandSelectSecurity}"
+            />
+            <TextBlock Width="90" Text="{Binding Header}"
+                       Margin="10,5,0,0"
+                       FontSize="16"/>
+            <TextBlock Text="{Binding Price}"
+                       Margin="10,5,0,0" Background="LightGray"
+                       FontSize="16"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical">
+                <GroupBox Header="Parameters"
+                    Grid.Row="0" Grid.Column="0"
+                    Width="300" Height="280"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="2">
+
+                    <UniformGrid Columns ="2">
+                        <TextBlock Text="Start Point:"/>
+                        <local:DecimalTextBox Text="{Binding StartPoint}"/>
+                        <TextBlock Text="Count levels:"/>
+                        <local:IntTextBox Text="{Binding CountLevels}"/>
+                        <TextBlock Text="Direction:"/>
+                        <ComboBox ItemsSource="{Binding Directions}"
+                            SelectedItem="{Binding Direction}"/>
+                        <TextBlock Text="Lot in level:"/>
+                        <StackPanel Orientation="Horizontal">
+                            <local:DecimalTextBox Text="{Binding Lot}"
+                                                  MinWidth="80"/>
+                            <CheckBox Content="$"
+                                      IsChecked="{Binding IsCheckCurrency}"
+                                      Margin="5,0"/>
+                        </StackPanel>
+                        
+                        <TextBlock Text="Step type:"/>
+                        <ComboBox ItemsSource="{Binding StepTypes}"
+                            SelectedItem="{Binding StepType}"/>
+                        <TextBlock Text="Step level:"/>
+                        <local:DecimalTextBox Text="{Binding StepLevel}"/>
+                        <TextBlock Text="Take Profit:"/>
+                        <local:DecimalTextBox Text="{Binding TakeLevel}"/>
+                        <TextBlock Text="Max active levels:"/>
+                        <local:IntTextBox Text="{Binding MaxActiveLevel}"/>
+                        <Button Content="CLOSE Positions"
+                                Command="{Binding CommandClosePositions}"
+                                Margin="3,1"
+                                >
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Foreground" Value="DarkBlue"/>
+                                    <Setter Property="Background" Value="LightGreen"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="Red"/>
+                                            <Setter Property="Background" Value="OrangeRed"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Calculate"
+                            Command="{Binding CommandCalculate}"
+                            Margin="3,1"/>
+                    </UniformGrid>
+
+                </GroupBox>
+
+                <GroupBox Header="Position"
+                    Grid.Column="0"
+                    Height="180"
+                    VerticalAlignment="Top"
+                    Margin="2">
+
+                    <UniformGrid Columns="2">
+                        <TextBlock Text="All Positions"/>
+                        <TextBlock Text="{Binding AllPositionsCount,
+                            StringFormat={}{0:0.#################}}"/>
+                        <TextBlock Text="Price average"/>
+                        <TextBlock Text="{Binding PriceAverage,
+                            StringFormat={}{0:0.#################}}"/>
+                        <TextBlock Text="Var margine"/>
+                        <TextBlock Text="{Binding VarMargine,
+                            StringFormat={}{0:0.#################}}"/>
+                        <TextBlock Text="Accum"/>
+                        <TextBlock Text="{Binding Accum,
+                            StringFormat={}{0:0.#################}}"/>
+                        <TextBlock Text="Total"/>
+                        <TextBlock Text="{Binding Total,
+                            StringFormat={}{0:0.#################}}"/>
+                        <TextBlock Text="DEPO"/>
+                        <TextBlock Text="{Binding Depo,
+                            StringFormat={}{0:0.#################}}"/>
+
+                    </UniformGrid>
+
+                </GroupBox>
+
+                <Button Content="{Binding IsRun,
+                    Converter={StaticResource ConverterIsRunToBool}}"
+                        Command="{Binding CommandStartStop}"
+                        FontSize="32" Height="60" Margin="3"/>
+            </StackPanel>
+
+            <GroupBox Grid.Column="1"
+                      Header="Levels">
+                <StackPanel Orientation="Vertical">
+                    <ScrollViewer Height="400">
+                        <DataGrid ItemsSource="{Binding Levels}"
+                                AutoGenerateColumns="False"
+                                CanUserAddRows="False"
+                                IsReadOnly="{Binding IsReadOnly}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="PriceLevel"
+                                        Binding="{Binding PriceLevel,
+                                        StringFormat={}{0:0.#################},
+                                        UpdateSourceTrigger=LostFocus}"/>
+                                <DataGridTemplateColumn Header="Side">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Side}"
+                                               Foreground="{Binding Side,
+                                              Converter={StaticResource ConverterColorToSide}}"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="OpenPrice"
+                                    Binding="{Binding OpenPrice}"/>
+                                <DataGridTextColumn Header="Volume"
+                                    Binding="{Binding Volume}"/>
+                                <DataGridTextColumn Header="Margin"
+                                    Binding="{Binding Margin,
+                                    StringFormat=G29}"/>
+                                <DataGridTextColumn Header="Accum"
+                                    Binding="{Binding Accum,
+                                    StringFormat=G29}"/>
+                                <DataGridTextColumn Header="TakePrice"
+                                    Binding="{Binding TakePrice,
+                                    StringFormat=G29}"/>
+                                <DataGridTextColumn Header="LimitVolume"
+                                    Binding="{Binding LimitVolume}"/>
+                                <DataGridTextColumn Header="TakeVolume"
+                                    Binding="{Binding TakeVolume}"/>
+                                <DataGridTextColumn Header="Id"
+                                    Binding="{Binding Id}"/>
+                                <DataGridTextColumn Header="PassVolume"
+                                    Binding="{Binding PassVolume}"/>
+                                <DataGridTextColumn Header="PassTake"
+                                    Binding="{Binding PassTake}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                    </ScrollViewer>
+
+                    <Button Content="Add row"
+                            Margin="10,3"
+                            Command="{Binding CommandAddRow}"/>
+                    
+                </StackPanel>
+                
+            </GroupBox>
+
+        </Grid>
+
+    </Grid>
+    
+</UserControl>

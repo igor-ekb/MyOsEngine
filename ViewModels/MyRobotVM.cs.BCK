@@ -1,0 +1,503 @@
+﻿using OkonkwoOandaV20;
+using OsEngine.Commands;
+using OsEngine.Entity;
+using OsEngine.Market;
+using OsEngine.Market.Servers;
+using OsEngine.MyEntity;
+using OsEngine.Robots;
+using OsEngine.Views;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms.DataVisualization.Charting;
+
+namespace OsEngine.ViewModels
+{
+    public class MyRobotVM: BaseVM
+    {
+        public MyRobotVM() 
+        {
+            ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+        }
+
+
+
+        #region Fields  =====================================
+
+        //List<IServer> _servers = new List<IServer>();
+
+        private Portfolio _portfolio;
+
+        #endregion
+
+        #region Properties =================================
+
+        public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
+
+        public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>();
+
+        public string Header
+        {
+            get 
+            {
+                if (SelectedSecurity != null)
+                {
+                    return SelectedSecurity.Name;
+                }
+                else
+                {
+                    return _header;
+                }
+            }
+
+            set
+            {
+                _header = value;
+                OnPropertyChanged(nameof(Header));
+            }
+        }
+        private string _header;
+
+
+        public Security SelectedSecurity
+        {
+            get => _selectedSecurity;
+            set 
+            {
+                _selectedSecurity = value;
+
+                OnPropertyChanged(nameof(SelectedSecurity));
+                OnPropertyChanged(nameof(Header));
+
+                //StartSecurity(_security);
+            }
+        }
+        private Security _selectedSecurity = null;
+
+        public ServerType ServerType
+        {
+            get
+            { 
+                if (Server == null) 
+                {
+                    return ServerType.None;
+                }
+                return Server.ServerType;
+            }
+        }
+
+        public string StringPortfolio
+        {
+            get => _stringPortfolio;
+            set
+            {
+                _stringPortfolio = value;
+                OnPropertyChanged(nameof(StringPortfolio));
+
+                _portfolio = GetPortfolio(_stringPortfolio);
+            }
+        }
+        private string _stringPortfolio;
+
+        public decimal StartPoint
+        {
+            get => _startPoint;
+            set
+            {
+                _startPoint = value;
+                OnPropertyChanged(nameof(StartPoint));
+            }
+        }
+        private decimal _startPoint;
+
+        public int CountLevels
+        {
+            get => _countLevels;
+            set
+            {
+                _countLevels = value;
+                OnPropertyChanged(nameof(CountLevels));
+            }
+        }
+        private int _countLevels;
+
+        public Direction Direction
+        {
+            get => _direction;
+            set
+            {
+                _direction = value;
+                OnPropertyChanged(nameof(Direction));
+            }
+        }
+        private Direction _direction;
+
+        public List<Direction> Directions { get; set; } = new List<Direction>()
+        {
+            Direction.BUY, Direction.SELL, Direction.BUYSELL
+        };
+
+        public decimal Lot
+        {
+            get => _lot;
+            set
+            {
+                _lot = value;
+                OnPropertyChanged(nameof(Lot));
+            }
+        }
+        private decimal _lot;
+
+        public StepType StepType
+        {
+            get => _stepType;
+            set
+            {
+                _stepType = value;
+                OnPropertyChanged(nameof(StepType));
+            }
+        }
+        private StepType _stepType;
+
+        public List<StepType> StepTypes { get; set; } = new List<StepType>()
+        {
+            StepType.PERCENT, StepType.PUNKT
+        };
+
+        public decimal StepLevel
+        {
+            get => _stepLevel;
+            set
+            {
+                _stepLevel = value;
+                OnPropertyChanged(nameof(StepLevel));
+            }
+        }
+        private decimal _stepLevel;
+
+        public decimal TakeLevel
+        {
+            get => _takeLevel;
+            set
+            {
+                _takeLevel = value;
+                OnPropertyChanged(nameof(TakeLevel));
+            }
+        }
+        private decimal _takeLevel;
+
+        public int MaxActiveActiveLevel
+        {
+            get => _maxActiveActiveLevel;
+            set
+            {
+                _maxActiveActiveLevel = value;
+                OnPropertyChanged(nameof(MaxActiveActiveLevel));
+            }
+        }
+        private int _maxActiveActiveLevel;
+
+        public decimal AllPositionsCount
+        {
+            get => _allPositionsCount;
+            set
+            {
+                _allPositionsCount = value;
+                OnPropertyChanged(nameof(AllPositionsCount));
+            }
+        }
+        private decimal _allPositionsCount;
+
+        public decimal PriceAverage
+        {
+            get => _priceAverage;
+            set
+            {
+                _priceAverage = value;
+                OnPropertyChanged(nameof(PriceAverage));
+            }
+        }
+        private decimal _priceAverage;
+
+        public decimal VarMargine
+        {
+            get => _varMargine;
+            set
+            {
+                _varMargine = value;
+                OnPropertyChanged(nameof(VarMargine));
+            }
+        }
+        private decimal _varMargine;
+
+        public decimal Accum
+        {
+            get => _accum;
+            set
+            {
+                _accum = value;
+                OnPropertyChanged(nameof(Accum));
+            }
+        }
+        private decimal _accum;
+
+        public decimal Total
+        {
+            get => _total;
+            set
+            {
+                _total = value;
+                OnPropertyChanged(nameof(Total));
+            }
+        }
+        private decimal _total;
+
+        public IServer Server
+        {
+            get => _server;
+            set
+            {
+                _server = value;
+                OnPropertyChanged(nameof(ServerType));
+
+                StringPortfolios = GetStringPorfolios(_server);
+
+                if (StringPortfolios != null
+                    && StringPortfolios.Count > 0)
+                {
+                    StringPortfolio = StringPortfolios[0];
+                }
+                OnPropertyChanged(nameof(StringPortfolios));
+            }
+        }
+        private IServer _server;
+
+        #endregion
+
+        #region Commands =================================
+
+        
+        public DelegateCommand CommandSelectSecurity
+        {
+            get
+            {
+                if (_commandSelectSecurity == null)
+                {
+                    _commandSelectSecurity = new DelegateCommand(SelectSecurity);
+                }
+                return _commandSelectSecurity;
+            }
+        }
+        private DelegateCommand _commandSelectSecurity;
+
+        
+        public DelegateCommand CommandCalculate
+        {
+            get
+            {
+                if (_commandCalculate == null)
+                {
+                    _commandCalculate = new DelegateCommand(Calculate);
+                }
+                return _commandCalculate;
+            }
+        }
+        private DelegateCommand _commandCalculate;
+
+        #endregion
+
+        #region Methods =================================
+
+        private void Calculate(object obj)
+        {
+            ObservableCollection<Level> levels = new ObservableCollection<Level>();
+
+            if (CountLevels <= 0) return;
+
+            decimal currBuyPrice = StartPoint;                 // Вспомогательная переменная "текущая цена"
+
+            decimal currSellPrice = StartPoint;                 // Вспомогательная переменная "текущая цена"
+
+            for ( int i = 0; i < CountLevels; i++ )
+            {
+                Level levelBuy = new Level() { Side = Side.Buy};
+                Level levelSell = new Level() { Side = Side.Sell};
+
+                if ( StepType == StepType.PUNKT)
+                {
+                    currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
+                    currSellPrice += StepLevel * SelectedSecurity.PriceStep;
+
+                }
+                else if (StepType == StepType.PERCENT)
+                {
+                    currBuyPrice -= StepLevel * currBuyPrice / 100;
+                    currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
+
+                    currSellPrice += StepLevel * currSellPrice / 100;
+                    currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+                }
+
+                levelBuy.PriceLevel = currBuyPrice;
+                levelSell.PriceLevel = currSellPrice;
+
+                if (Direction == Direction.BUY
+                    || Direction == Direction.BUYSELL)
+                {
+                    levels.Add(levelBuy);
+                }
+
+                if (Direction == Direction.SELL
+                    || Direction == Direction.BUYSELL)
+                {
+                    levels.Insert(0, levelSell);
+                }
+            }
+
+            Levels = levels;
+            OnPropertyChanged(nameof(Levels));
+        }
+
+
+        private ObservableCollection<string> GetStringPorfolios(IServer server)
+        {
+            ObservableCollection<string> stringPortfolious = new ObservableCollection<string>();
+
+            if (server == null)
+            {
+                return stringPortfolious;
+            }
+
+            foreach (Portfolio portf in server.Portfolios)
+            {
+                stringPortfolious.Add(portf.Number);
+            }
+
+            return stringPortfolious;
+        }
+
+        private Portfolio GetPortfolio(String number)
+        {
+            if (Server != null)
+            {
+                foreach (Portfolio portf in Server.Portfolios)
+                {
+                    if (portf.Number == number)
+                    {
+                        return portf;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        void SelectSecurity(object o)
+        {
+            if (RobotWindowVM.ChangeEmitentWindow != null)
+            {
+                return;
+            }
+
+            RobotWindowVM.ChangeEmitentWindow = new ChangeEmitentWindow(this);
+
+            RobotWindowVM.ChangeEmitentWindow.ShowDialog();
+
+            RobotWindowVM.ChangeEmitentWindow = null;
+        }
+
+        private void StartSecurity(Security security)
+        {
+            if (security == null)
+            {
+                Debug.WriteLine("StartSecurity security = null");
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    // TimeFrameBuilder() - значения по умолчанию TimeFrame 1 Min, TradeCount = 100;
+                     var series = Server.StartThisSecurity(security.Name, new TimeFrameBuilder(), security.NameClass);
+
+                    if (series != null)
+                    {
+                        break;
+                    }
+
+                    Thread.Sleep(1000);
+                }
+            });
+
+        }
+
+        private void ServerMaster_ServerCreateEvent(Market.Servers.IServer newServer)
+        {
+            if (newServer == Server)
+            {
+                return;
+            }
+
+            Server = newServer;
+
+            Server.PortfoliosChangeEvent += NewServer_PortfoliosChangeEvent; ;     // подписка на изменение портфеля
+            Server.NeadToReconnectEvent += NewServer_NeadToReconnectEvent;         // требуется перезаказ бумаги у сервера
+            Server.NewMarketDepthEvent += NewServer_NewMarketDepthEvent;           // подписка  на стакан
+            Server.NewTradeEvent += NewServer_NewTradeEvent;                       // подписка на пул обезличенных сделок
+            Server.NewOrderIncomeEvent += NewServer_NewOrderIncomeEvent;           // подписка на события по ордерам
+            Server.NewMyTradeEvent += NewServer_NewMyTradeEvent;                   // произошла моя сделка
+            Server.ConnectStatusChangeEvent += NewServer_ConnectStatusChangeEvent; // изменился статус подключения
+
+            Server.NeadToReconnectEvent += _server_NeadToReconnectEvent;
+        }
+
+        private void _server_NeadToReconnectEvent()
+        {
+            
+        }
+
+        private void NewServer_ConnectStatusChangeEvent(string obj)
+        {
+            
+        }
+
+        private void NewServer_PortfoliosChangeEvent(List<Portfolio> portfolios)
+        {
+            
+        }
+
+        private void NewServer_NewMyTradeEvent(MyTrade myTrade)
+        {
+
+        }
+
+        private void NewServer_NewOrderIncomeEvent(Order order)
+        {
+
+        }
+
+        private void NewServer_NewTradeEvent(List<Trade> trades)
+        {
+
+        }
+
+        private void NewServer_NewMarketDepthEvent(MarketDepth marketDepth)
+        {
+
+        }
+
+
+        private void NewServer_NeadToReconnectEvent()
+        {
+            
+        }
+        #endregion
+    }
+
+}

@@ -3,7 +3,7 @@
     /// <summary>
     /// GetAccountInfo response
     /// </summary>
-    public class GetAccountInfoResponse
+    public class GetClassInfo
     {
         /// <summary>
         /// Response status

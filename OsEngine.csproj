@@ -67,6 +67,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\cgate_net64.dll</HintPath>
     </Reference>
+    <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
+      <HintPath>..\packages\ControlzEx.4.4.0\lib\net462\ControlzEx.dll</HintPath>
+    </Reference>
     <Reference Include="Jayrock, Version=0.9.16530.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\Jayrock.dll</HintPath>
@@ -79,7 +82,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\LmaxClientLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="MahApps.Metro, Version=2.0.0.0, Culture=neutral, PublicKeyToken=51482d6f650b2b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\MahApps.Metro.2.4.9\lib\net47\MahApps.Metro.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -101,7 +110,6 @@
     </Reference>
     <Reference Include="QUIKSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=eb70e0fec970faf8, processorArchitecture=MSIL">
       <HintPath>..\packages\QUIKSharp.1.0.0\lib\net45\QUIKSharp.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -111,6 +119,8 @@
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
@@ -124,6 +134,8 @@
     <Reference Include="System.Runtime.Serialization">
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
@@ -367,6 +379,7 @@
       <DependentUpon>IndicarotCreateUi.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="Converters\ConvertersGrid.cs" />
     <Compile Include="Entity\AcceptDialogUi.xaml.cs">
       <DependentUpon>AcceptDialogUi.xaml</DependentUpon>
     </Compile>
@@ -435,6 +448,7 @@
     </Compile>
     <Compile Include="Market\Connectors\MassSourcesCreator.cs" />
     <Compile Include="Market\ServerMasterPainter.cs" />
+    <None Include="Market\Servers\AServer.cs.BCK" />
     <Compile Include="Market\Servers\AServer.cs" />
     <Compile Include="Market\Servers\AServerParameterUi.xaml.cs">
       <DependentUpon>AServerParameterUi.xaml</DependentUpon>
@@ -796,6 +810,13 @@
     <Compile Include="Market\Services\CandlesCreator.cs" />
     <Compile Include="Market\Services\RestChannel.cs" />
     <Compile Include="Market\Services\WsSource.cs" />
+    <Compile Include="MyEntity\Direction.cs" />
+    <Compile Include="MyEntity\EmitClass.cs" />
+    <Compile Include="MyEntity\Emitent.cs" />
+    <Compile Include="MyEntity\ExChange.cs" />
+    <Compile Include="MyEntity\Level.cs" />
+    <Compile Include="MyEntity\MessageForLog.cs" />
+    <Compile Include="MyEntity\StepType.cs" />
     <Compile Include="OsConverter\OsCandleConverterUi.xaml.cs">
       <DependentUpon>OsCandleConverterUi.xaml</DependentUpon>
     </Compile>
@@ -894,16 +915,18 @@
     <Compile Include="OsTrader\Panels\Tab\BotTabScreenerUi.xaml.cs">
       <DependentUpon>BotTabScreenerUi.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Robots\BaseVM.cs" />
     <Compile Include="Robots\BotFactory.cs" />
     <Compile Include="Robots\CounterTrend\ClusterCountertrend.cs" />
+    <Compile Include="Robots\CryptoCluster\MyRobotCluster.cs" />
     <Compile Include="Robots\FrontRunner\Models\FrontRunner.cs" />
     <Compile Include="Robots\FrontRunner\ViewModels\VMFrontRunner.cs" />
     <Compile Include="Robots\FrontRunner\Views\FrontRunnerUi.xaml.cs">
       <DependentUpon>FrontRunnerUi.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Robots\HFT\HFTRobot.cs" />
     <Compile Include="Robots\MyPriceChanel\MyPriceChanel.cs" />
     <Compile Include="Robots\MyRobots\MyRobot.cs" />
-    <Compile Include="Robots\MyRobots\ViewModels\BaseVM.cs" />
     <Compile Include="Robots\MyRobots\ViewModels\VMMyRobot.cs" />
     <Compile Include="Robots\MyRobots\WindowMyRobot.xaml.cs">
       <DependentUpon>WindowMyRobot.xaml</DependentUpon>
@@ -1040,6 +1063,21 @@
     <Compile Include="Robots\MarketMaker\TwoLegArbitrage.cs" />
     <Compile Include="Robots\CounterTrend\WilliamsRangeTrade.cs" />
     <Compile Include="Robots\VolumeReverse\MyVolReverseRobot.cs" />
+    <Compile Include="RobotWindow.xaml.cs">
+      <DependentUpon>RobotWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ViewModels\ChangeEmitentVM.cs" />
+    <None Include="ViewModels\MyRobotVM.cs.BCK" />
+    <Compile Include="ViewModels\MyRobotVM.cs" />
+    <Compile Include="ViewModels\RobotWindowVM.cs" />
+    <Compile Include="Views\ChangeEmitentWindow.xaml.cs">
+      <DependentUpon>ChangeEmitentWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DecimalTextBox.cs" />
+    <Compile Include="Views\IntTextBox.cs" />
+    <Compile Include="Views\MyRobot.xaml.cs">
+      <DependentUpon>MyRobot.xaml</DependentUpon>
+    </Compile>
     <Page Include="Alerts\AlertMessageFullUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1056,6 +1094,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <None Include="App.xaml.Bck">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
     <Page Include="Charts\CandleChart\Indicators\AccumulationDistributionUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1280,6 +1322,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <None Include="lua\dkjson.lua" />
+    <None Include="lua\qscallbacks.lua" />
+    <None Include="lua\qsfunctions.lua" />
+    <None Include="lua\qsutils.lua" />
+    <None Include="lua\QuikSharp.lua" />
+    <None Include="lua\socket.lua" />
+    <None Include="MainWindow.xaml.Bck">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
     <Page Include="Market\Connectors\ConnectorCandlesUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1288,6 +1340,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <None Include="Market\ServerMasterUi.xaml.Bck">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Market\Servers\AServerParameterUi.xaml.Bck">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
     <Page Include="Market\Servers\AServerParameterUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1568,6 +1628,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="RobotWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChangeEmitentWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MyRobot.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PrimeSettings\PrimeSettingsMaster.cs" />
@@ -1592,12 +1664,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="lua\dkjson.lua" />
-    <None Include="lua\qscallbacks.lua" />
-    <None Include="lua\qsfunctions.lua" />
-    <None Include="lua\qsutils.lua" />
-    <None Include="lua\QuikSharp.lua" />
-    <None Include="lua\socket.lua" />
     <None Include="OsEngine.csproj.DotSettings" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

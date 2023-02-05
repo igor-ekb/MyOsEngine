@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Threading;
 using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using OsEngine.OsTrader.Gui;
 using RestSharp;
 using Application = System.Windows.Application;

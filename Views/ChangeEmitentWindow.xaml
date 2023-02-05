@@ -1,0 +1,99 @@
+﻿<Window x:Class="OsEngine.Views.ChangeEmitentWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OsEngine.Views" xmlns:viewmodels="clr-namespace:OsEngine.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ChangeEmitentVM}"
+        mc:Ignorable="d"
+        Title="ChangeEmitentWindow" Height="600" Width="1200">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition MinHeight="200"/>
+                <RowDefinition MinHeight="300"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox Header="Exсhanges">
+                <ItemsControl ItemsSource="{Binding ExChanges}"
+                     Margin="2">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Content="{Binding Server}"
+                                Command="{Binding DataContext.CommandSetExchange,
+                                RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding Server}"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </GroupBox>
+
+            <GroupBox Header="Classes"
+                        Grid.Row="1" Margin="2">
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding EmitClasses}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding ClassEmit}"
+                                    Command="{Binding DataContext.CommandSetEmitClass,
+                                    RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding ClassEmit}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+            </GroupBox>
+
+        </Grid>
+
+        <GroupBox Header="Securities" Grid.Column="1"
+                  Margin="2">
+            <Grid Grid.Column="1">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="3"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Change"
+                            Command="{Binding CommandChange}"/>
+                    <TextBlock Text=" Selected Security:"
+                               Height="25"/>
+                    <TextBlock Text="{Binding SelectedEmitent.NameSec, Mode=OneWay}"
+                               Width="140" Height="25" Margin="5,2"/>
+                    <TextBlock Text="Name:"
+                               Height="25"/>
+                    <TextBlock Text="{Binding SelectedEmitent.NameId, Mode=OneWay}"
+                               Height="25" Margin="5,2"/>
+                </StackPanel>
+
+                <GridSplitter Grid.Row="1"/>
+
+                <DataGrid Grid.Row="2"
+                    AutoGenerateColumns="False"
+                    ItemsSource="{Binding Securities}"
+                      SelectedItem="{Binding SelectedEmitent}"
+                      Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{Binding NameSec, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="NameId" Binding="{Binding NameId, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="NameFull" Binding="{Binding NameFull, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="PriceStep" Binding="{Binding PriceStep, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="PriceStepCost" Binding="{Binding PriceStepCost, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="DecimalPrice" Binding="{Binding DecimalPrice, Mode=OneWay}"/>
+                        <DataGridTextColumn Header="DecimalVolume" Binding="{Binding DecimalVolume, Mode=OneWay}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+            
+        </GroupBox>
+
+    </Grid>
+</Window>

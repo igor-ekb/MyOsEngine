@@ -251,7 +251,7 @@ namespace OsEngine.Entity
         private List<MyTrade> _trades;
 
         /// <summary>
-        /// heck the ownership of the transaction to this order
+        /// check the ownership of the transaction to this order
         /// проверить принадлежность сделки этому ордеру
         /// </summary>
         public void SetTrade(MyTrade trade)

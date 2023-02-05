@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OsEngine.Robots.MyRobots.ViewModels
+namespace OsEngine.Robots
 {
     public class BaseVM : INotifyPropertyChanged
     {

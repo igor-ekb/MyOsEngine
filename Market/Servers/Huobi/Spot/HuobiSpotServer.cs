@@ -558,7 +558,7 @@ namespace OsEngine.Market.Servers.Huobi.Spot
 
                 Portfolios = new List<Portfolio>();
 
-                GetAccountInfoResponse accountInfo = JsonConvert.DeserializeObject<GetAccountInfoResponse>(response);
+                GetClassInfo accountInfo = JsonConvert.DeserializeObject<GetClassInfo>(response);
 
                 foreach (var info in accountInfo.data)
                 {

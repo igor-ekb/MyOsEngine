@@ -104,8 +104,36 @@ namespace OsEngine.Market.Servers.QuikLua
                 QuikLua.Service.QuikService.Start();
                 ServerStatus = ServerConnectStatus.Connect;
                 ConnectEvent?.Invoke();
+
+                GetData();
             }
         }
+
+        private async void GetData()
+        {
+            if (QuikLua.Service.IsConnected().Result)
+            {
+                List<QuikSharp.DataStructures.Transaction.Order> orders = 
+                    await QuikLua.Orders.GetOrders();                           // Запрос списка ордеров
+
+                foreach (var order in orders)
+                {
+                    EventsOnOnOrder(order);     // вызов события получения ордера для обработки OsEngine'ом
+                                                    // как если бы ордера сами пришли
+                }
+
+                List<QuikSharp.DataStructures.Transaction.Trade> trades =
+                    await QuikLua.Trading.GetTrades();                           // Запрос списка ордеров
+
+                foreach (var trade in trades)
+                {
+                    EventsOnOnTrade(trade);     // вызов события получения trade для обработки OsEngine'ом
+                                                    // как если бы trade сами пришли
+                }
+            }
+        }
+
+
 
         public void Dispose()
         {

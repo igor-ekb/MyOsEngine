@@ -38,7 +38,7 @@ namespace OsEngine
 
         public static Dispatcher GetDispatcher
         {
-            get { return RobotWindow.Dispatcher; }
+            get { return _window.Dispatcher; }
         }
 
         /// <summary>
@@ -99,9 +99,7 @@ namespace OsEngine
 
             this.Activate();
             this.Focus();
-
         }
-
 
         private void ChangeText()
         {
