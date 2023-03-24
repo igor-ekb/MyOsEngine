@@ -70,7 +70,7 @@
                                Width="140" Height="25" Margin="5,2"/>
                     <TextBlock Text="Name:"
                                Height="25"/>
-                    <TextBlock Text="{Binding SelectedEmitent.NameId, Mode=OneWay}"
+                    <TextBlock Text="{Binding SelectedEmitent.NameFull, Mode=OneWay}"
                                Height="25" Margin="5,2"/>
                 </StackPanel>
 

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         xmlns:conv="clr-namespace:OsEngine.Converters"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
         >
 
@@ -61,7 +62,7 @@
             <StackPanel Orientation="Vertical">
                 <GroupBox Header="Parameters"
                     Grid.Row="0" Grid.Column="0"
-                    Width="300" Height="280"
+                    Width="300" Height="290"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Margin="2">
 
@@ -76,10 +77,12 @@
                         <TextBlock Text="Lot in level:"/>
                         <StackPanel Orientation="Horizontal">
                             <local:DecimalTextBox Text="{Binding Lot}"
-                                                  MinWidth="80"/>
+                                    MinWidth="50"/>
                             <CheckBox Content="$"
-                                      IsChecked="{Binding IsCheckCurrency}"
-                                      Margin="5,0"/>
+                                    IsChecked="{Binding IsCheckCurrency}"
+                                    Margin="5,0"/>
+                            <TextBlock Text="{Binding WorkLot}"
+                                    Background="LightGray"/>
                         </StackPanel>
                         
                         <TextBlock Text="Step type:"/>
@@ -91,6 +94,10 @@
                         <local:DecimalTextBox Text="{Binding TakeLevel}"/>
                         <TextBlock Text="Max active levels:"/>
                         <local:IntTextBox Text="{Binding MaxActiveLevel}"/>
+                        <TextBlock Text="{Binding BorderDown}"
+                                   Background="LightGray" />
+                        <TextBlock Text="{Binding BorderUp}"
+                                   Background="LightGray"/>
                         <Button Content="CLOSE Positions"
                                 Command="{Binding CommandClosePositions}"
                                 Margin="3,1"
@@ -154,7 +161,7 @@
             <GroupBox Grid.Column="1"
                       Header="Levels">
                 <StackPanel Orientation="Vertical">
-                    <ScrollViewer Height="400">
+                    <ScrollViewer Height="210">
                         <DataGrid ItemsSource="{Binding Levels}"
                                 AutoGenerateColumns="False"
                                 CanUserAddRows="False"
@@ -163,13 +170,26 @@
                                 <DataGridTextColumn Header="PriceLevel"
                                         Binding="{Binding PriceLevel,
                                         StringFormat={}{0:0.#################},
+                                        
                                         UpdateSourceTrigger=LostFocus}"/>
                                 <DataGridTemplateColumn Header="Side">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Side}"
-                                               Foreground="{Binding Side,
-                                              Converter={StaticResource ConverterColorToSide}}"/>
+
+                                            <ComboBox ItemsSource="{Binding DataContext.Sides,
+                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                   SelectedItem="{Binding Side,
+                                               UpdateSourceTrigger=PropertyChanged}"
+                                                   Foreground="{Binding Side,
+                                               Converter={StaticResource ConverterColorToSide}}"
+                                                   Background="Black"
+                                                   IsEnabled="{Binding DataContext.IsEnable,
+                                               RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+                                            <!--<TextBox Text="{Binding Side}"
+                                                       Foreground="{Binding Side,
+                                               Converter={StaticResource ConverterColorToSide}}"/>-->
+
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -191,12 +211,11 @@
                                     Binding="{Binding LimitVolume}"/>
                                 <DataGridTextColumn Header="TakeVolume"
                                     Binding="{Binding TakeVolume}"/>
-                                <DataGridTextColumn Header="Id"
-                                    Binding="{Binding Id}"/>
                                 <DataGridTextColumn Header="PassVolume"
                                     Binding="{Binding PassVolume}"/>
                                 <DataGridTextColumn Header="PassTake"
                                     Binding="{Binding PassTake}"/>
+                                
                             </DataGrid.Columns>
                         </DataGrid>
                         
@@ -205,7 +224,9 @@
                     <Button Content="Add row"
                             Margin="10,3"
                             Command="{Binding CommandAddRow}"/>
-                    
+                    <oxy:PlotView Model="{Binding Model}"
+                            Controller="{Binding Controller}"
+                            Height="300"/>
                 </StackPanel>
                 
             </GroupBox>

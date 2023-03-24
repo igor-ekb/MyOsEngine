@@ -37,14 +37,17 @@ namespace OsEngine.ViewModels
 
         public ObservableCollection<MyRobotVM> Robots { get; set; } = new ObservableCollection<MyRobotVM>();
 
+        /// <summary>
+        /// Выбранный робот 
+        /// Урок 4-37  0:02:06
+        /// </summary>
         public MyRobotVM SelectedRobot
         {
             get => _selectedRobot;
 
             set
             {
-                value = _selectedRobot;
-
+                _selectedRobot = value;
                 OnPropertyChanged(nameof(SelectedRobot));
             }
         }
@@ -55,15 +58,14 @@ namespace OsEngine.ViewModels
         #region Fields =====================================
 
         /// <summary>
-        /// Статический(чтобы исключить множественность одноременно запускаемых) окно для смены эмитента 
+        /// Статическая очередь(чтобы исключить множественность одноременно запускаемых) окно для смены эмитента 
         /// </summary>
-        /// 
         private static ConcurrentQueue<MessageForLog> _logMessages = new ConcurrentQueue<MessageForLog>();
 
         public static ChangeEmitentWindow ChangeEmitentWindow = null;
 
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, Order>> Orders =
-            new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();                        // Урок 3-33 00:05:05
+            new ConcurrentDictionary<string, ConcurrentDictionary<string, Order>>();                          // Урок 3-33 00:05:05
 
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>> MyTrades =
             new ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>();                        // Урок 3-33 00:07:43
@@ -215,19 +217,26 @@ namespace OsEngine.ViewModels
         /// <summary>
         /// Добавление вкладки Tab
         /// Урок 3-32 0:13:41 - 
+        /// <param name="Security.Name_NumberTab"><</param>
         /// </summary>
         void AddTab(string name)
         {
+            int tabCount = Robots.Count + 1;
+
             if (name != "")
             {
+                // Создание MyRobotVM c header = name и загрузкой параметров MyRootVM.Load() из файла TABS\Param_name.txt
                 Robots.Add(new MyRobotVM(name, Robots.Count + 1));
             }
             else
             {
-                Robots.Add(new MyRobotVM("Tab" + Robots.Count + 1, Robots.Count + 1));
+                // Проверка : создание нового  MyRobotVM c начальным header = "TAB"+(Robots.Count + 1)
+                // Robots.Add(new MyRobotVM("Tab" + tabCount, Robots.Count + 1));
+                Robots.Add(new MyRobotVM(Robots.Count + 1));
             }
 
-            Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;   // Подписка на создание новой вкладки
+            // Подписка на создание новой вкладки (запуск Save()  в param.txt обновленного списка роботов(TABs) 
+            Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
         }
 
 
@@ -252,15 +261,22 @@ namespace OsEngine.ViewModels
 
                 if (res == MessageBoxResult.Yes )
                 {
+                    if (File.Exists(@"Parameters\Tabs\param_" + header + ".txt"))
+                    {
+                        File.Delete(@"Parameters\Tabs\param_" + header + ".txt");
+                    }
+
                     Robots.Remove(delRobot);
                 }
             }
+
+            Save();
         }
 
+
         /// <summary>
-        /// Логирование событий в журнал
+        /// Добавление событий в ObservableCollection _logMessages для дальнейшей записи в журнал
         /// </summary>
-        /// <param name="str"></param>
         public static void Log(string name, string mess)
         {
             MessageForLog messageForLog = new MessageForLog()
@@ -275,7 +291,7 @@ namespace OsEngine.ViewModels
 
         private static void RecordLog()
         {
-            if (!Directory.Exists(@"Log"))                      // Folder   OsEngine\bin\Debug
+            if (!Directory.Exists(@"Log"))                      // Folder   bin\Debug\Log
             {
                 Directory.CreateDirectory(@"Log");
             }
@@ -301,16 +317,11 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Сохранение имени и номера вкладки Tab
-        /// Урок 3-32 0:0:22 - 0:08:33 ; 
+        /// Сохранение "Parameters\param.txt" списка имен+номер вкладок Tab и (SelectedRobot.Head)
+        /// Урок 3-32 0:0:22 - 0:08:33 ;  Урок 4-37 0:03:13 (SelectedRobot)
         /// </summary>
         private void Save()
         {
-            if (Robots == null || Robots.Count == 0) return;
-            {
-
-            }
-
             if (!Directory.Exists(@"Parameters"))                           // Folder   bin\Debug\Parameters
             {
                 Directory.CreateDirectory(@"Parameters");
@@ -328,23 +339,31 @@ namespace OsEngine.ViewModels
                 {
                     writer.WriteLine(str);
 
-                    //writer.WriteLine(SelectedRobot.NumberTab);
-                    writer.WriteLine(Robots[Robots.Count - 1].NumberTab);
+                    if (Robots == null || Robots.Count == 0 || SelectedRobot == null)
+                    {
+                        //writer.WriteLine(Robots[0].Header);
+                    }
+
+                    else
+                    {
+                        // Урок 4-37 0:03:22 (SelectedRobot)
+                        writer.WriteLine(SelectedRobot.Header);
+                        //writer.WriteLine(Robots[Robots.Count - 1].Header);
+                    }
 
                     writer.Close();
                 }
             }
             catch (Exception ex)
             {
-
-                Log("App RobotWindowVM", "Save error = " + ex.Message);
+                Log("App ", "Save error = " + ex.Message);
             }
         }
 
 
         /// <summary>
-        /// Считывание имени и номера вкладки Tab
-        /// Урок 3-32  0:08:33 - 0:13:41 ; 
+        /// Считывание из "Parameters\param.txt" списка имен+номер вкладок Tab и (SelectedRobot.Head)
+        /// Урок 3-32  0:08:33 - 0:13:41 ; Урок 4-37 0:03:55 (SelectedRobot)
         /// </summary>
         private void Load()
         {
@@ -355,7 +374,8 @@ namespace OsEngine.ViewModels
 
             string strTabs = "";
 
-            int SelectedNumber = 0;
+            // Урок 4-37 0:03:55 (SelectedRobot)
+            string header = "";
 
             try
             {
@@ -363,7 +383,8 @@ namespace OsEngine.ViewModels
                 {
                     strTabs = reader.ReadLine();
 
-                    SelectedNumber = Convert.ToInt32(reader.ReadLine());
+                    // Урок 4-37 0:04:06 (SelectedRobot)
+                    header = reader.ReadLine();
 
                     reader.Close();
                 }
@@ -372,7 +393,7 @@ namespace OsEngine.ViewModels
             catch (Exception ex)
             {
 
-                Log("App RobotWindowVM", "Load error = " + ex.Message);
+                Log("App ", "Load error = " + ex.Message);
             }
 
             string[] tabs = strTabs.Split(';');
@@ -382,12 +403,14 @@ namespace OsEngine.ViewModels
                 if (tab != "")
                 {
                     AddTab(tab);
-                }
-            }
 
-            if (Robots.Count > SelectedNumber)
-            {
-                SelectedRobot = Robots[SelectedNumber - 1];
+                    // Урок 4-37 0:04:45 (SelectedRobot)
+                    if (Robots.Last().Header == header )
+                    {
+                        // Урок 4-37 0:05:10 (SelectedRobot)
+                        SelectedRobot = Robots.Last();
+                    }
+                }
             }
         }
 

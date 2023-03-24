@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:OsEngine.Views"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         mc:Ignorable="d"
-        Height="650" Width="1300">
+        Height="750" Width="1230">
     
         <mah:MetroWindow.LeftWindowCommands>
             <mah:WindowCommands>
@@ -30,7 +30,7 @@
 
     <Grid>
         <TabControl ItemsSource="{Binding Robots}"
-                SelectedItem="SelectedRobot">
+                SelectedItem="{Binding SelectedRobot}">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

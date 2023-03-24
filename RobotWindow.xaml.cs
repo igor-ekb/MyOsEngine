@@ -50,7 +50,7 @@ namespace OsEngine
 
         private void RobotWindow_Closed(object sender, EventArgs e)
         {
-            Save();
+            Save();                                                     // Вызываем сохранение при закрытии 
 
             MainWindow.ProccesIsWorked = false;
 
@@ -67,14 +67,14 @@ namespace OsEngine
         {
             foreach (MyRobotVM robotVM in windowVM.Robots)                     // Урок 3-32  01:11:07
             {
-                robotVM.Save();                                 // Save() из MyRobotVM.cs
+                robotVM.Save();                                 // Save() из MyRobotVM.cs в Parameters\TABs\param_
             }
         }
 
         public static Dispatcher Dispatcher;
 
         /// <summary>
-        /// Разрешение на перетаскивания окна при помощи нажатия Left Button мышки
+        /// Назначение на перетаскивания окна при помощи нажатия Left Button мышки
         /// </summary>
         private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

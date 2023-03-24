@@ -18,6 +18,8 @@ using Candle = OsEngine.Entity.Candle;
 using Order = OsEngine.Entity.Order;
 using Trade = OsEngine.Entity.Trade;
 
+/// !!!!! Добавили GetData() в строку 108
+
 namespace OsEngine.Market.Servers.QuikLua
 {
     public class QuikLuaServer : AServer
@@ -105,7 +107,7 @@ namespace OsEngine.Market.Servers.QuikLua
                 ServerStatus = ServerConnectStatus.Connect;
                 ConnectEvent?.Invoke();
 
-                GetData();
+                GetData();                  // !!! наша добавка на случай разрыва соединения
             }
         }
 

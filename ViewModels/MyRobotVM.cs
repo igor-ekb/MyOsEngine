@@ -1,11 +1,17 @@
 ﻿using Newtonsoft.Json;
+using OkonkwoOandaV20.TradeLibrary.DataTypes.Pricing;
 using OsEngine.Commands;
 using OsEngine.Entity;
+using OsEngine.Logging;
 using OsEngine.Market;
 using OsEngine.Market.Servers;
 using OsEngine.MyEntity;
 using OsEngine.Robots;
 using OsEngine.Views;
+using OxyPlot;
+using OxyPlot.Annotations;
+using OxyPlot.Axes;
+using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,15 +27,36 @@ namespace OsEngine.ViewModels
 {
     public class MyRobotVM: BaseVM
     {
-        public MyRobotVM(string header, int number) 
+        /// <summary>
+        /// Перегрузка конструктора добавления робота через Load() из Parameters\param.txt
+        /// ....... + модификация(Init) Урок 4-37 0:28:52
+        /// </summary>
+        public MyRobotVM(string header, int numberTab) 
         {
-            Header = header;
-            NumberTab = number;
+            string[] str = header.Split('=');
+
+            Header = str[0];
+
+            Init(numberTab);
+
+            Load(Header);
 
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
+        }
 
-            Load();
 
+        /// <summary>
+        /// Перегрузка конструктора для нового робота - непонятная версия и когда вызывается
+        /// Урок 4-37 0:28:52
+        /// </summary>
+        public MyRobotVM(int numberTab)
+        {
+            if (Header == null)
+            {
+                Header = "Tab" + numberTab;
+            }
+
+            Init(numberTab);
         }
 
 
@@ -38,6 +65,78 @@ namespace OsEngine.ViewModels
         public ObservableCollection<string> StringPortfolios { get; set; } = new ObservableCollection<string>();
 
         public ObservableCollection<Level> Levels { get; set; } = new ObservableCollection<Level>();
+
+        public PlotModel Model
+        {
+            get => _model;
+            set
+            {
+                _model = value;
+                OnPropertyChanged(nameof(Model));
+            }
+        }
+        private PlotModel _model = new PlotModel()
+        {
+            Background = OxyColors.Gray                         // Серый фон чарта графика свечей
+                                       // !!! Однако не понятно как менять цвет букв и  фона в окне ствойств свечи по пр.кнопки
+        };
+
+        /// <summary>
+        /// Урок 4-37 01:23:56
+        /// </summary>
+        public PlotController Controller
+        {
+            get => _controller;
+
+            set
+            {
+                _controller = value;
+                OnPropertyChanged(nameof(Controller));
+            }
+        }
+        public PlotController _controller;
+
+        public decimal BorderUp
+        {
+            get => _borderUp;
+
+            set
+            {
+                _borderUp = value;
+                OnPropertyChanged(nameof(BorderUp));
+            }
+        }
+        private decimal _borderUp = 0m;
+
+
+        public decimal BorderDown
+        {
+            get => _borderDown;
+
+            set
+            {
+                _borderDown = value;
+                OnPropertyChanged(nameof(BorderDown));
+            }
+        }
+        private decimal _borderDown = 0m;
+
+
+        /// <summary>
+        /// Состояние подключения 
+        /// </summary>
+        public string StatusServer
+        {
+            get => _statusServer;
+
+            set
+            {
+                _statusServer = value;
+                OnPropertyChanged(nameof(StatusServer));
+            }
+        }
+        private string _statusServer;
+
 
         public string Header
         {
@@ -61,18 +160,7 @@ namespace OsEngine.ViewModels
         }
         private string _header;
 
-        public string StatusServer
-        {
-            get => _statusServer;
-            
-            set
-            {
-                _statusServer = value;
-                OnPropertyChanged(nameof(StatusServer));
-            }
-        }
-        private string _statusServer;
-
+ 
         /// <summary>
         /// Выбранная бумага
         /// </summary>
@@ -118,7 +206,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Строка номера счета
+        /// Строка номера счета, Секция Шапка
         /// </summary>
         public string StringPortfolio
         {
@@ -129,12 +217,6 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StringPortfolio));
 
                 _portfolio = GetPortfolio(_stringPortfolio);
-
-                if (_portfolio != null)
-                {
-                    Depo = _portfolio.ValueCurrent;
-                    OnPropertyChanged(nameof(Depo));
-                }
             }
         }
         private string _stringPortfolio = "";
@@ -152,7 +234,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Количество уровней
+        /// Количество уровней, Секция Parameters
         /// </summary>
         public int CountLevels
         {
@@ -167,7 +249,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Вид торговли (Buy/Sell/BuySell)
+        /// Вид торговли (Buy/Sell/BuySell), Секция Parameters
         /// </summary>
         public Direction Direction
         {
@@ -200,8 +282,19 @@ namespace OsEngine.ViewModels
         }
         private decimal _lot;
 
+        public decimal WorkLot
+        {
+            get => _workLot;
+            set
+            {
+                _workLot = value;
+                OnPropertyChanged(nameof(WorkLot));
+            }
+        }
+        private decimal _workLot = 0;
+
         /// <summary>
-        /// Тип шагов уровней
+        /// Тип шагов уровней, Секция Parameters
         /// </summary>
         public StepType StepType
         {
@@ -212,7 +305,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StepType));
             }
         }
-        private StepType _stepType;
+        private StepType _stepType = StepType.PUNKT;
 
         /// <summary>
         /// List типов шагов уровней
@@ -223,7 +316,7 @@ namespace OsEngine.ViewModels
         };
 
         /// <summary>
-        /// Величина шага уровня
+        /// Величина шага уровня Level, Секция Parameters
         /// </summary>
         public decimal StepLevel
         {
@@ -234,7 +327,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(StepLevel));
             }
         }
-        private decimal _stepLevel;
+        private decimal _stepLevel = 0m;
 
         public decimal TakeLevel
         {
@@ -248,7 +341,7 @@ namespace OsEngine.ViewModels
         private decimal _takeLevel;
 
         /// <summary>
-        /// Кол-во активных уровней
+        /// Кол-во активных уровней от текущей цены Price, Секция Parameters
         /// </summary>
         public int MaxActiveLevel
         {
@@ -259,7 +352,7 @@ namespace OsEngine.ViewModels
                 OnPropertyChanged(nameof(MaxActiveLevel));
             }
         }
-        private int _maxActiveLevel;
+        private int _maxActiveLevel = 0;
 
         /// <summary>
         /// Полная позиция по бумаге
@@ -299,6 +392,42 @@ namespace OsEngine.ViewModels
             {
                 _price = value;
                 OnPropertyChanged(nameof(Price));
+
+                BorderUp = _price + GetStepLevel() * MaxActiveLevel;
+                OnPropertyChanged(nameof(BorderUp));
+                BorderDown = _price - GetStepLevel() * MaxActiveLevel;
+                OnPropertyChanged(nameof(BorderDown));
+
+                if (IsCheckCurrency
+                     && Price != 0)
+                {
+                    WorkLot = Lot / Price;
+                    WorkLot = decimal.Round(WorkLot, SelectedSecurity.DecimalsVolume);
+
+                    if (WorkLot < Lot / Price)
+                    {
+                        WorkLot += 1;
+                    }
+                }
+                else
+                {
+                    WorkLot = decimal.Round(Lot, SelectedSecurity.DecimalsVolume);
+                }
+                OnPropertyChanged(nameof(WorkLot));
+
+                if (_price != 0) 
+                {
+                    if (Model.Title == null)
+                    {
+                        SetModel();
+
+                        if (_portfolio != null)
+                        {
+                            Depo = _portfolio.ValueCurrent;
+                            OnPropertyChanged(nameof(Depo));
+                        }
+                    }
+                }
             }
         }
         private decimal _price;
@@ -394,14 +523,49 @@ namespace OsEngine.ViewModels
         }
         private IServer _server = null;
 
+        public bool IsCheckCurrency
+        {
+            get => _isCheckCurrency;
+            set
+            {
+                _isCheckCurrency = value;
+                OnPropertyChanged(nameof(IsCheckCurrency));
+
+            }
+        }
+        public bool _isCheckCurrency = false;
+
+
+        public List<Side> Sides { get; set; } = new List<Side>()
+        {
+            Side.Buy, Side.Sell
+        };
+
         #endregion
 
 
         #region Fields  =====================================
 
-        private Portfolio _portfolio;
+        // Внутренняя серия свечей по Бумаге с установкой дизайна свечей
+        private CandleStickSeries _candleSeries = new CandleStickSeries             // Скопировали из OxyPlot 
+        {
+            Color = OxyColors.Black,
+            IncreasingColor = OxyColors.SkyBlue,             // Цвет растущей свечи
+            DecreasingColor = OxyColors.DarkRed,             // Цвет падающей свечи
+            DataFieldX = "Time",
+            DataFieldHigh = "H",
+            DataFieldLow = "L",
+            DataFieldOpen = "O",
+            DataFieldClose = "C",
+            TrackerFormatString = "High: {2:0.00}\nLow: {3:0.00}\nOpen: {4:0.00}\nClose: {5:0.00}"
+        };
 
-        public int NumberTab = 0;                                         // Номер вкладки TAB
+        private Portfolio _portfolio;                                       // Внутренняя Портфель
+
+        public int NumberTab = 0;                                     // Идентификатор Робота, Порядковый номер при создании TAB
+
+        private DateTime _lastTimeCandle = DateTime.MinValue;               // Внутренняя Текущее время свечи
+
 
         #endregion
 
@@ -461,6 +625,19 @@ namespace OsEngine.ViewModels
         #region Methods =================================
 
         /// <summary>
+        /// Содается учетный номер робота и вызывается создание Чарта графика свечей
+        /// Урок 4-37 0:29:00
+        /// </summary>
+        private void Init(int numberTab)
+        {
+            NumberTab = numberTab;
+
+            // Перенесено в ChangeEmitentVM  в метод Change
+            //SetModel();
+        }
+
+
+        /// <summary>
         /// Урок 3-32 1:07:44
         /// </summary>
         private void ServerMaster_ServerCreateEvent(IServer server)
@@ -472,7 +649,7 @@ namespace OsEngine.ViewModels
         }
 
         /// <summary>
-        /// Проставить заявки по уровням Levels и отправка Ордера на биржу
+        /// Проставить заявки по уровням Levels и отправить  Ордера на биржу
         /// </summary>
         private void TradeLogic()
         {
@@ -482,17 +659,18 @@ namespace OsEngine.ViewModels
                 return;
             }
 
-
             foreach (Level level in Levels)
             {
                 TradeLogicOpen(level);
 
                 TradeLogicClose(level);
             }            
+            
         }
 
 
         /// <summary>
+        /// Вычисление Шага уровня Level в валюте актива
         /// Урок 3-31 59:37
         /// </summary>
         private decimal GetStepLevel()
@@ -515,6 +693,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
+        /// Торговая логика на открытие позиций
         /// Урок 3-31 42:34
         /// </summary>
         private void TradeLogicOpen(Level level)
@@ -522,7 +701,6 @@ namespace OsEngine.ViewModels
             decimal stepLevel = GetStepLevel();
 
             decimal borderUp = Price + stepLevel * MaxActiveLevel;
-
             decimal borderDown = Price - stepLevel * MaxActiveLevel;
 
             if (level.PassVolume                                    // Проверка разрешение на выставление ордера по объему Volume
@@ -532,7 +710,11 @@ namespace OsEngine.ViewModels
                 if ((level.Side == Side.Buy && level.PriceLevel >= borderDown)
                     || (level.Side == Side.Sell && level.PriceLevel <= borderUp))
                 {
-                    decimal workLot = Lot - Math.Abs(level.Volume) - level.LimitVolume;
+                    decimal lot = CalcWorkLot(Lot, level.PriceLevel);
+
+                    decimal workLot = lot - Math.Abs(level.Volume) - level.LimitVolume;   // Объем, который собираемся выставлять
+
+                    if (workLot == 0) return;           // доп.защита -  Урок 3-34 01:11:12
 
                     RobotWindowVM.Log(Header, "Level = " + level.GetStringForSave());
                     RobotWindowVM.Log(Header, "workLot = " + workLot);
@@ -541,7 +723,7 @@ namespace OsEngine.ViewModels
 
                     level.PassVolume = false;
 
-                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, workLot, level.Side);
+                    Order order = SendOrder(SelectedSecurity, level.PriceLevel, workLot, level.Side);   // Заявка на бумагу
 
                     if (order != null)
                     {
@@ -559,6 +741,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
+        /// Торговая логика на закрытие TakeProfit открытых позиций
         /// Урок 3-31 42:34 - 52:49
         /// </summary>
         private void TradeLogicClose(Level level)
@@ -567,7 +750,7 @@ namespace OsEngine.ViewModels
 
             if (level.PassTake                                      // Проверка разрешение на выставление ордера Take
                     && level.PriceLevel != 0                            // Проверка расчитаны ли уровни
-                    && level.Volume != 0                                // Проверка ограничения по объему для уровня
+                    && level.Volume != 0                                // Проверка - есть ли купленный объем
                     && Math.Abs(level.Volume) != level.TakeVolume)
             {
                 Side side = Side.None;
@@ -592,7 +775,7 @@ namespace OsEngine.ViewModels
                 {
                     level.PassTake = false;
 
-                    Order order = SendOrder(SelectedSecurity, level.TakePrice, workLot, side);
+                    Order order = SendOrder(SelectedSecurity, level.TakePrice, workLot, side);      // Заявка TakeProfit
 
                     if (order != null)
                     {
@@ -650,6 +833,25 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
+        /// Расчет значения Лота
+        /// Урок 3-34   0:47:34
+        /// </summary>
+        private decimal CalcWorkLot(decimal lot, decimal price)
+        {
+            decimal workLot = lot;
+
+            if (IsCheckCurrency)
+            {
+                workLot = lot / price;
+            }
+
+            workLot = decimal.Round(workLot, SelectedSecurity.DecimalsVolume);
+
+            return workLot;
+        }
+
+
+        /// <summary>
         /// Выставление ордера
         /// </summary>
         private Order SendOrder(Security sec, decimal price, decimal volume, Side side)
@@ -673,16 +875,69 @@ namespace OsEngine.ViewModels
 
             Server.ExecuteOrder(order);                             // Отправка ордера в сервер(коннектор)
 
+            if (order.State == OrderStateType.Fail)
+            {
+                MessageBox.Show("Recieved : Send Order State = Fail");
+            }
+
             return order;
         }
 
         
         /// <summary>
         /// Кнопка Старт/Стоп Робота
+        /// .......  + Урок 3-34 0:24:48 - 0:43:02
         /// </summary>
         private void StartStop(object o)
         {
+            if (Server == null
+                || Server.ServerStatus == ServerConnectStatus.Disconnect) return;
+
             IsRun = !IsRun;
+
+            RobotWindowVM.Log(Header, "StartStop = " + IsRun);
+
+            if (IsRun)
+            {
+                foreach (Level level in Levels)         // Урок 3-34   0:57:37
+                {
+                    level.SetVolumeStart();         // подчистка ордеров
+
+                    level.PassVolume = true;        // разрешение на выставление начальных ордеров
+                    level.PassTake = true;          // разрешение на выставление TakeProfit
+                }
+            }
+            else
+            {                          // Если работа остановлена
+                Task.Run(() =>         // Чтобы не блокировать окно на время снятия всех ордеров запускаем новый локальный Task
+                {
+                    while (true)
+                    {
+                        foreach (Level level in Levels)
+                        {
+                            level.CancelAllOrders(Server, Header);
+                        }
+
+                        Thread.Sleep(3000);                         // Берем паузу на 3 сек
+
+                        bool flag = true;                           // Создаем флаг на прекращение бесконечного while (true)
+
+                        foreach (Level level in Levels)
+                        {
+                            if (level.LimitVolume != 0           // проверяем, если остались ордера на открытие
+                                || level.TakeVolume != 0)        // проверяем, если остались ордера на закрытие TakeProfit
+                            {
+                                flag = false;                   // снимаем разрешение на прекращение бесконечного while (true)
+                                break;                          // возвращаемся в while
+                            }
+                        }
+                        if (flag)
+                        {
+                            break;                             // выходим из бесконечного while (true)
+                        }
+                    }
+                }); 
+            }
         }
 
 
@@ -696,6 +951,18 @@ namespace OsEngine.ViewModels
             _server.SecuritiesChangeEvent += Server_SecuritiesChangeEvent;
             _server.PortfoliosChangeEvent += Server_PortfoliosChangeEvent;
             _server.ConnectStatusChangeEvent += Server_ConnectStatusChangeEvent;
+        }
+
+
+        private void UnSubScribeToServer()
+        {
+            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
+            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
+            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
+            _server.NewTradeEvent -= Server_NewTradeEvent;
+            _server.SecuritiesChangeEvent -= Server_SecuritiesChangeEvent;
+            _server.PortfoliosChangeEvent -= Server_PortfoliosChangeEvent;
+            _server.ConnectStatusChangeEvent -= Server_ConnectStatusChangeEvent;
         }
 
 
@@ -728,17 +995,6 @@ namespace OsEngine.ViewModels
             }
         }
 
-        private void UnSubScribeToServer()
-        {
-            _server.NewMyTradeEvent -= Server_NewMyTradeEvent;
-            _server.NewOrderIncomeEvent -= Server_NewOrderIncomeEvent;
-            _server.NewCandleIncomeEvent -= Server_NewCandleIncomeEvent;
-            _server.NewTradeEvent -= Server_NewTradeEvent;
-            _server.SecuritiesChangeEvent -= Server_SecuritiesChangeEvent;
-            _server.PortfoliosChangeEvent -= Server_PortfoliosChangeEvent;
-            _server.ConnectStatusChangeEvent -= Server_ConnectStatusChangeEvent;
-        }
-
 
         /// <summary>
         /// Урок 3-32 1:03:27
@@ -754,28 +1010,172 @@ namespace OsEngine.ViewModels
             }
         }
 
-        private void Server_ConnectStatusChangeEvent(string obj)
+        private void Server_ConnectStatusChangeEvent(string state)
         {
-            StatusServer = obj;
+            StatusServer = state;
 
+            if (state == "Connect")
+            {
+                GetStateOrders();                                           // Урок 3-34 0:10:14 (Для BinanceFutures
+            }
+            else
+            {
+                IsRun = false;
+            }
         }
 
 
         private void Server_NewTradeEvent(List<Trade> trades)
         {
-            if ( trades != null
-                && trades.Last().SecurityNameCode == SelectedSecurity.Name)
+            try
             {
-                Price = trades.Last().Price;
+                if (trades != null
+                && trades.Last().SecurityNameCode == SelectedSecurity.Name)
+                {
+                    Trade trade = trades.Last();
 
-                CalculateMargin();
+                    Price = trade.Price;
+
+                    CalculateMargin();
+
+                    if (trade.Time.Second % 5 == 0)
+                    {
+                        TradeLogic();          // Раз в 5 сек перепроверяем доступность уровней по Max Level - Урок 3-34 01:06:39
+                    }
+
+                    if (trade.Time.Second % 2 == 0)
+                    {
+                        double x = DateTimeAxis.ToDouble(trade.Time);
+
+                        double y = (double)trade.Price;
+
+                        double heigh = (Model.Axes[1].ActualMaximum - Model.Axes[1].ActualMinimum);    // Размер вертикальной оси
+
+                        double offset = heigh / 100;
+
+                        OxyColor color;
+
+
+                        if (trade.Side == Side.Buy)
+                        {
+                            offset *= -1;
+                            color = OxyColors.LightSkyBlue;
+                        }
+                        else
+                        {
+                            color = OxyColors.LightPink;
+                        }
+
+
+                        Model.Annotations.Clear();
+
+                        /// Добавляем из OxyPlot Example Annotation   Урок 4-37 01:34:00
+                        // Аннотация для стрелок - будем использовать для отметки сделок
+                        Model.Annotations.Add(new ArrowAnnotation
+                        {
+                            StartPoint = new DataPoint(x, y + offset),          // Выставление начала стрелки с отступом над/под ценой
+                            EndPoint = new DataPoint(x, y),                     // Выставление кончика стрелки по цене
+                            Color = color,
+                            Text = trade.Price.ToString(),
+                            //ToolTip = "This is a tool tip for the ArrowAnnotation"
+                        });
+
+                        Model.InvalidatePlot(true);         // Обновляем график бумаги раз в 2 сек   Урок 4-37 0:47:39
+                        OnPropertyChanged(nameof(Model));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(Header, "NewTradeEvent Exception = " + ex.Message);
+            }
+            
+        }
+
+        /// <summary>
+        /// Урок 4-37 0:32:25(контекст + 0:36:06) + 41:37
+        /// </summary>
+        private void Server_NewCandleIncomeEvent(CandleSeries series)
+        {
+            try
+            {
+                if (series.Security.Name != SelectedSecurity.Name) return;      // отфильтровываем части свечей только по нашей бумаге
+
+                if (_lastTimeCandle == DateTime.MinValue                    // В самом начале, когда только начали приходить свечки
+                    && _candleSeries.Items.Count == 0
+                    && series.CandlesAll.Count > 0)
+                {
+                    foreach (Candle candle in series.CandlesAll)
+                    {
+                        SetCandle(candle);
+                    }
+
+                    double x = _candleSeries.Items[0].X;
+
+                    if (_candleSeries.Items.Count > 100)
+                    {
+                        x = _candleSeries.Items[_candleSeries.Items.Count - 100].X;     // Урок 4-37 01:16:00
+
+                    }
+
+                    Model.Axes[0].Minimum = x;
+                    Model.Axes[0].Maximum = _candleSeries.Items.Last().X + (_candleSeries.Items.Last().X - x) / 20; // Делаем отступ справа
+
+                    return;
+                }
+
+                Candle lastCandle = series.CandlesAll.Last();           // иначе обычнная обработка новой порции части свечи
+
+                SetCandle(lastCandle);
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(Header, "NewCandleIncomeEvent Exception = " + ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// В series.свечей или обновляем свечу или добавляем новую в зависимости от интервалов времени в свече
+        /// Урок 4-37  01:06:27
+        /// </summary>
+        private void SetCandle(Candle candle)
+        {
+            if (candle == null) return;
+
+            HighLowItem hlc = GetCandle(candle);
+
+            if (_lastTimeCandle < candle.TimeStart)        // Началась новая свеча
+            {
+                _candleSeries.Items.Add(hlc);               // добавляем новый объект в серию свечей
+
+                _lastTimeCandle = candle.TimeStart;         // устанавливаем текущее время на начало свежей свечи
+
+            }
+            else                                            // еще старая свеча
+            {
+                HighLowItem item = _candleSeries.Items.Last();  // получаем текущий объект свечи
+
+                _candleSeries.Items.Remove(item);               // удаляем устаревшые значения свечи
+
+                _candleSeries.Items.Add(hlc);                   // и добавляем обновленную свечу
             }
         }
 
 
-        private void Server_NewCandleIncomeEvent(CandleSeries series)
+        /// <summary>
+        /// Урок 4-37 0:36:16
+        /// </summary>
+        private HighLowItem GetCandle(Candle candle)
         {
-            
+            double open = (double)candle.Open;
+            double high = (double)candle.High;
+            double close = (double)candle.Close;
+            double low = (double)candle.Low;
+
+            double x = DateTimeAxis.ToDouble(candle.TimeStart);
+
+            return new HighLowItem(x, high, low, open, close);
         }
 
 
@@ -842,13 +1242,14 @@ namespace OsEngine.ViewModels
                 && order.PortfolioNumber == StringPortfolio )
             {                
                 
-                bool isRec = true;                                      // Записать или нет ?
+                bool isRec = true;                                      // Флаг : Записывать или нет ?
 
                 if (order.State == OrderStateType.Activ
-                    && order.TimeCallBack.AddSeconds(10) < Server.ServerTime) isRec = false;    // Последующие Лог'b более не нужны
+                    && order.TimeCallBack.AddSeconds(10) < Server.ServerTime) isRec = false;    // Последующие Логи более не нужны
 
                 if( isRec) RobotWindowVM.Log(Header, "NewOrderIncomeEvent = " + GetStringForSave(order));
 
+                // Если ордеру присвоен NumberMarket
                 if (order.NumberMarket != "")
                 {
                     foreach (Level level in Levels)
@@ -868,6 +1269,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
+        /// Реакция на приход инф. о совершении сделки 
         /// Урок 3-31 0:00 - 
         /// </summary>
         private void Server_NewMyTradeEvent(MyTrade myTrade)
@@ -884,28 +1286,28 @@ namespace OsEngine.ViewModels
                 {
                     RobotWindowVM.Log(Header, GetStringForSave(myTrade));
 
-                    if (myTrade.Side == level.Side)                         // Если сделка на открытие
+                    if (myTrade.Side == level.Side)                         // Если произошла сделка на открытие позиции
                     {
                         TradeLogicClose(level);
                     }
-                    else
+                    else                                                    // Если произошла сделка на закрытие позиции
                     {
                         TradeLogicOpen(level);
                     }
 
-                    Save();              // Как только Лог записали, вызываем Save()
+                    Save();              // Записываем рез-т сделки в Лог ( вызываем Save()
                 }
             }
         }
 
 
         /// <summary>
-        /// Расчет уровней
+        /// Расчет уровней Levels(затирание предыдущих данных)
         /// ......   Урок 3-31 1:08:05 - 1:12:04
         /// </summary>
         private void Calculate(object obj)
         {
-            RobotWindowVM.Log(Header, "\n\n Calculate");
+            RobotWindowVM.Log(Header, "\n Calculate");
 
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
@@ -922,25 +1324,45 @@ namespace OsEngine.ViewModels
                 Level levelBuy = new Level() { Side = Side.Buy};
                 Level levelSell = new Level() { Side = Side.Sell};
 
+                decimal levelStep = 0;
+
                 if ( StepType == StepType.PUNKT)
                 {
-                    currBuyPrice -= StepLevel * SelectedSecurity.PriceStep;
-                    currSellPrice += StepLevel * SelectedSecurity.PriceStep;
+
+                    if ( i == 0)
+                    {
+                        levelStep = StepLevel * SelectedSecurity.PriceStep / 2;
+                    }
+                    else
+                    {
+                        levelStep = StepLevel * SelectedSecurity.PriceStep ;
+                    }
 
                     stepTake = TakeLevel * SelectedSecurity.PriceStep;
-                    stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
+
                 }
                 else if (StepType == StepType.PERCENT)
                 {
-                    currBuyPrice -= StepLevel * currBuyPrice / 100;
-                    currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
-
-                    currSellPrice += StepLevel * currSellPrice / 100;
-                    currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+                    if (i == 0)
+                    {
+                        levelStep = StepLevel * currBuyPrice / 100 / 2;
+                    }
+                    else
+                    {
+                        levelStep = StepLevel * currBuyPrice / 100;
+                    }
 
                     stepTake = TakeLevel * currBuyPrice / 100;
-                    stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
+
                 }
+
+                currBuyPrice -= levelStep;
+                currBuyPrice = Decimal.Round(currBuyPrice, SelectedSecurity.Decimals);
+
+                currSellPrice += levelStep;
+                currSellPrice = Decimal.Round(currSellPrice, SelectedSecurity.Decimals);
+
+                stepTake = Decimal.Round(stepTake, SelectedSecurity.Decimals);
 
                 levelBuy.PriceLevel = currBuyPrice;
                 levelSell.PriceLevel = currSellPrice;
@@ -965,7 +1387,8 @@ namespace OsEngine.ViewModels
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
 
-            Save();             // После окончания расчетов вызываем Save()
+            // Сохраняем обновленные уровни и данные робота MyRobotVM.Save() в @"Parameters\Tabs\param_" + Head + ".txt"
+            Save();
         }
 
 
@@ -1063,15 +1486,15 @@ namespace OsEngine.ViewModels
         {
             string str = "";
 
-            str += order.SecurityNameCode + " | ";
-            str += order.PortfolioNumber + " | ";
+            str += "Security=" + order.SecurityNameCode + " | ";
+            str += "PortfolioNumber=" + order.PortfolioNumber + " | ";
             str += order.TimeCreate + " | ";
-            str += order.State + " | ";                             // Статус соединения
+            str += "State=" + order.State + " | ";                             // Статус соединения
             str += order.Side + " | ";
-            str += "Volume" + order.Volume + " | ";
-            str += "Price" + order.Price + " | ";
-            str += "NumberUser" + order.NumberUser + " | ";
-            str += "NumberMarket" + order.NumberMarket + " | ";
+            str += "Volume=" + order.Volume + " | ";
+            str += "Price=" + order.Price + " | ";
+            str += "NumberUser=" + order.NumberUser + " | ";
+            str += "NumberMarket=" + order.NumberMarket + " | ";
 
             return str;
         }
@@ -1080,19 +1503,19 @@ namespace OsEngine.ViewModels
         {
             string str = "";
 
-            str += myTrade.SecurityNameCode + " | ";
+            str += "Security=" + myTrade.SecurityNameCode + " | ";
             str += myTrade.Time + " | ";
             str += myTrade.Side + " | ";
-            str += "Volume" + myTrade.Volume + " | ";
-            str += "Price" + myTrade.Price + " | ";
-            str += "NumberOrderParent" + myTrade.NumberOrderParent + " | ";
-            str += "NumberTrade" + myTrade.NumberTrade + " | ";
+            str += "Volume=" + myTrade.Volume + " | ";
+            str += "Price=" + myTrade.Price + " | ";
+            str += "NumberOrderParent=" + myTrade.NumberOrderParent + " | ";
+            str += "NumberTrade=" + myTrade.NumberTrade + " | ";
 
             return str;
         }
 
         /// <summary>
-        /// Сохранение имен коннектора, бумаги, параметров и уровней
+        /// Сохранение робота в файл Tabs\param_" + NumberTab + ".txt имен коннектора, бумаги, параметров и ордеров на открытие/закрытие
         /// Урок 3-32 0:27:50
         /// </summary>
         public void Save()
@@ -1104,15 +1527,18 @@ namespace OsEngine.ViewModels
   
             try
             {
-                using (StreamWriter writer = new StreamWriter(@"Parameters\Tabs\param_" + NumberTab + ".txt", false))
+                //using (StreamWriter writer = new StreamWriter(@"Parameters\Tabs\param_" + NumberTab + ".txt", false))
+                using (StreamWriter writer = new StreamWriter(@"Parameters\Tabs\param_" + Header + ".txt", false))
                 {
                     writer.WriteLine(Header);
+                    writer.WriteLine(NumberTab);
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
                     writer.WriteLine(StartPoint);
                     writer.WriteLine(CountLevels);
                     writer.WriteLine(Direction);
                     writer.WriteLine(Lot);
+                    writer.WriteLine(IsCheckCurrency);
                     writer.WriteLine(StepType);
                     writer.WriteLine(StepLevel);
                     writer.WriteLine(TakeLevel);
@@ -1120,7 +1546,6 @@ namespace OsEngine.ViewModels
                     writer.WriteLine(PriceAverage);
                     writer.WriteLine(Accum);
                     writer.WriteLine(JsonConvert.SerializeObject(Levels));                  
-
 
                     writer.Close();
                 }
@@ -1136,22 +1561,27 @@ namespace OsEngine.ViewModels
         /// Считывание сохраненных имен коннектора , бумаги , параметров и уровней
         /// Урок 3-32 0:36:36
         /// </summary>
-        private void Load()
+        private void Load(string header)
         {
-            if (!Directory.Exists(@"Parameters\Tabs"))                         // Folder   OsEngine\bin\Debug\Tabs
+            if (!Directory.Exists(@"Parameters\Tabs")                             //Folder             bin\Debug\Tabs
+              || !File.Exists(@"Parameters\Tabs\param_" + header + ".txt"))     //Cуществует ли файл bin\Debug\Tabs\param_.txt?
             {
                 return;
             }
 
             string serverType = "";
 
+            int numberTab = NumberTab;
+
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
             try
             {
-                using (StreamReader reader = new StreamReader(@"Parameters\Tabs\param_" + NumberTab + ".txt"))
+                //using (StreamReader reader = new StreamReader(@"Parameters\Tabs\param_" + NumberTab + ".txt"))
+                using (StreamReader reader = new StreamReader(@"Parameters\Tabs\param_" + header + ".txt"))
                 {
                     Header = reader.ReadLine();
+                    numberTab = (int)GetDecimalForString(reader.ReadLine());
                     serverType = reader.ReadLine();
                     StringPortfolio = reader.ReadLine();
                     StartPoint = GetDecimalForString(reader.ReadLine());
@@ -1166,6 +1596,13 @@ namespace OsEngine.ViewModels
 
                     Lot = GetDecimalForString(reader.ReadLine());
 
+                    bool check = true;                                  // Создаем переменную типа Enum Direction
+
+                    if (bool.TryParse(reader.ReadLine(), out check))    // Парсим, является ли считаное типом bool ?
+                    {
+                        IsCheckCurrency = check;
+                    }
+
                     StepType type = StepType.PUNKT;
 
                     if (Enum.TryParse(reader.ReadLine(), out type))
@@ -1177,6 +1614,7 @@ namespace OsEngine.ViewModels
                     TakeLevel = GetDecimalForString(reader.ReadLine());
                     MaxActiveLevel = (int)GetDecimalForString(reader.ReadLine());
                     PriceAverage = GetDecimalForString(reader.ReadLine());
+                    Accum = GetDecimalForString(reader.ReadLine());
 
                     levels = JsonConvert.DeserializeAnonymousType(reader.ReadLine(), new ObservableCollection<Level>());
 
@@ -1186,8 +1624,7 @@ namespace OsEngine.ViewModels
 
             catch (Exception ex)
             {
-
-                RobotWindowVM.Log(Header + NumberTab, "Load error = " + ex.Message);
+                RobotWindowVM.Log(Header, "MyRobotVM Load param_" + NumberTab + " Error = " + ex.Message);
             }
 
             if (levels != null)
@@ -1195,12 +1632,13 @@ namespace OsEngine.ViewModels
                 Levels = levels;
             }
 
+            // Запрос сервера у ServerMaster
             StartServer(serverType);
         }
 
 
         /// <summary>
-        /// Заказ сервера(коннектора) по имени
+        /// Заказ запуска сервера(коннектора) по имени
         /// Урок 3-32 0:53:44
         /// </summary>
         private void StartServer(string serverType)
@@ -1224,9 +1662,153 @@ namespace OsEngine.ViewModels
         {
             decimal value = 0;
 
-            decimal.TryParse(str, out value);               // Безопасный (без вылета на Exception) меnтод Parse
+            decimal.TryParse(str, out value);               // Безопасный (без вылета на Exception) метод Parse
 
             return value;
+        }
+
+        /// <summary>
+        /// !!! Пока для BinanceFutures !!! Сверка состояния ордеров из нашего списка с ордерами в сервере/коннекторе
+        /// Урок 3-34 0:10:14
+        /// </summary>
+        private void GetStateOrders()
+        {
+            if (Server != null)
+            {
+                if (Server.ServerType == ServerType.BinanceFutures)
+                {
+                    List<Order> orders = new List<Order>();         // формируем список ордеров для проверкм
+
+                    foreach (Level level in Levels)
+                    {
+                        GetStateOrders(level.OrdersForOpen, ref orders);
+
+                        GetStateOrders(level.OrdersForClose, ref orders);
+                    }
+
+                    AServer aServer = (AServer)Server;              // Преобразуем Iserver Server в класс AServer !!!!
+
+                    if (orders.Count > 0)
+                    {
+                        // Теперь доступны ServerRealization и GetOrdersState   -  запрос состояния ордеров
+                        aServer.ServerRealization.GetOrdersState(orders);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Составление (Фильтр) списка ордеров на проверка 
+        /// Урок 3-34 0:19:20
+        /// </summary>
+        private void GetStateOrders(List<Order> orders, ref List<Order> stateOrders)
+        {
+            foreach (Order order in orders)
+            {
+                if (order != null)
+                {
+                    if (order.State == OrderStateType.Activ
+                        || order.State == OrderStateType.Patrial
+                        || order.State == OrderStateType.Pending)
+                    {
+                        stateOrders.Add(order);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Создание модели (Имя и чарт для графика свечей)
+        /// Урок 4-37 0:25:17
+        /// </summary>
+        public void SetModel()
+        {
+            try
+            {
+                Model.Axes.Clear();
+                Model.Title = Header;
+
+                DateTimeAxis dateAxis = new DateTimeAxis()                                        // горизонтальная ось - время
+                {
+                    Position = AxisPosition.Bottom,
+                    MinorIntervalType = DateTimeIntervalType.Auto,                          // Интервал     Урок 4-37   0:52:12
+                    MajorGridlineStyle = LineStyle.Dot,
+                    MinorGridlineStyle = LineStyle.Dot,
+                    MajorGridlineColor = OxyColors.LightGray,
+                    TicklineColor = OxyColor.FromRgb(82, 82, 82)                              // Урок 4-37   0:54:31
+                };
+
+                LinearAxis linearAxis = new LinearAxis()                                        // вертикальная ось - значения
+                {
+                    Position = AxisPosition.Right,
+                    MajorGridlineStyle = LineStyle.Dot,
+                    MinorGridlineStyle = LineStyle.Dot,
+                    MajorGridlineColor = OxyColors.LightGray,
+                    TicklineColor = OxyColor.FromRgb(82, 82, 82)
+                };
+
+                Model.Axes.Add(dateAxis);
+                Model.Axes.Add(linearAxis);
+
+                // Урок 4-37 01:01:37 : подписываемся на изм.данных Оси  by zooming, panning or resetting
+                dateAxis.AxisChanged += (sender, e) => AdjustYExtent(Model.Title, _candleSeries, dateAxis, linearAxis);
+
+                Model.Series.Add(_candleSeries);                        //  добавляем свечу в график Урок 4-37 0:50:17
+
+                //( контекст Урок 4-37 1:19-45 - 22:56) Урок 4-37 01:23:15 + 01:25:28
+                Controller = new PlotController();           
+
+                //Назначаем левой кн мыши функции перемещения графика
+                Controller.BindMouseDown(OxyMouseButton.Left, PlotCommands.PanAt);
+
+                //Назначаем правой кн мыши функции показ св-ств графика
+                Controller.BindMouseDown(OxyMouseButton.Right, PlotCommands.HoverSnapTrack);
+
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(Header, "MyRobotVM SetModel Error = " + ex.Message);
+            }
+
+        }
+
+        /// <summary>
+        /// Adjusts the Y extent.
+        /// Урок 4-37 01:00:48
+        /// </summary>
+        private static void AdjustYExtent(string header, CandleStickSeries series, DateTimeAxis xaxis, LinearAxis yaxis)
+        {
+            try
+            {
+                // Защита, чтобы не начинать расчет min/max в series до поступления свечей
+                if (series.Items == null                        
+                    || series.Items.Count == 0) return;
+
+                var xmin = xaxis.ActualMinimum;
+                var xmax = xaxis.ActualMaximum;
+
+                var istart = series.FindByX(xmin);
+                var iend = series.FindByX(xmax, istart);
+
+                var ymin = double.MaxValue;
+                var ymax = double.MinValue;
+                for (int i = istart; i <= iend; i++)
+                {
+                    var bar = series.Items[i];
+                    ymin = Math.Min(ymin, bar.Low);
+                    ymax = Math.Max(ymax, bar.High);
+                }
+
+                var extent = ymax - ymin;
+                var margin = extent * 0.10;
+
+                yaxis.Zoom(ymin - margin, ymax + margin);
+            }
+            catch (Exception ex)
+            {
+                RobotWindowVM.Log(header, "MyRobotVM AdjustYExtent Error = " + ex.Message);
+            }
+
         }
 
 
@@ -1238,5 +1820,7 @@ namespace OsEngine.ViewModels
         public event onSelectedSecurity OnSelectedSecurity;                 // Событие на создание новой вкладки Tab
 
         #endregion
+
+
     }
 }

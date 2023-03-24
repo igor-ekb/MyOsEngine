@@ -26,11 +26,13 @@ namespace OsEngine.ViewModels
 
         #region Fields ===========================================
 
+        // Словарь _classes : список бумапо классам
         Dictionary<string, List<Security>> _classes = new Dictionary<string, List<Security>>();
 
+        // список классов
         List<EmitClass> emitClasses= new List<EmitClass>();
         
-        MyRobotVM _robot;
+        private MyRobotVM _robot;
 
         private IServer _server = null;
 
@@ -106,16 +108,18 @@ namespace OsEngine.ViewModels
 
         #region Methods =========================================
 
-        void Change(object obj)
+        private void Change(object obj)
         {
             if (SelectedEmitent != null
                 && SelectedEmitent.Security != null)
             {
-                _robot.Server = _server;                                // и присваиваем Server
+                _robot.Server = _server;                                            // присваиваем Server
 
-                _robot.StringPortfolios = _robot.GetStringPorfolios(_robot.Server);
+                _robot.StringPortfolios = _robot.GetStringPorfolios(_robot.Server); // считываем и присваиваем PortFolio
 
-                _robot.SelectedSecurity = SelectedEmitent.Security;      // присваиваем выбранную бумагу
+                _robot.SelectedSecurity = SelectedEmitent.Security;                 // присваиваем выбранную бумагу
+
+                _robot.SetModel();
 
             }
         }

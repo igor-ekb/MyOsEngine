@@ -8,7 +8,7 @@ namespace OsEngine.MyEntity
 {
     public class MessageForLog
     {
-        public string Name;             // Имя бумаги
+        public string Name;             // Заголовок, например: Имя бумаги
 
         public string Message;          // Сообщение
     }

@@ -15,11 +15,6 @@ namespace OsEngine.Converters
         /// <summary>
         /// Возвращает "цвет" взависимости от параметра value (buy/sell)
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             SolidColorBrush color = Brushes.White;
@@ -47,14 +42,10 @@ namespace OsEngine.Converters
 
     public class ConverterIsRunToBool : IValueConverter
     {
+
         /// <summary>
         /// Возвращает "START/STOP" взависимости от параметра value (true/false)
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="targetType"></param>
-        /// <param name="parameter"></param>
-        /// <param name="culture"></param>
-        /// <returns></returns>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             string str = "START";

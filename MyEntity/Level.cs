@@ -1,11 +1,14 @@
 ﻿using OsEngine.Entity;
+using OsEngine.Market.Servers;
 using OsEngine.Robots;
 using OsEngine.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OsEngine.MyEntity
@@ -108,7 +111,7 @@ namespace OsEngine.MyEntity
         private decimal _accum = 0;
 
         /// <summary>
-        /// Объем лимитки на покупку
+        /// Объем уже выставленной лимитки на покупку
         /// </summary>
         public decimal LimitVolume
         {
@@ -122,7 +125,7 @@ namespace OsEngine.MyEntity
         private decimal _limitVolume;
 
         /// <summary>
-        /// Объем Take лимитки
+        /// Объем лотов TakeProfit 
         /// </summary>
         public decimal TakeVolume
         {
@@ -136,7 +139,7 @@ namespace OsEngine.MyEntity
         private decimal _takeVolume;
 
         /// <summary>
-        /// Флаг Разрешения на выставление Объема ордера
+        /// Флаг Разрешения на выставление ордера на бумагу
         /// </summary>
         public bool PassVolume
         {
@@ -150,7 +153,7 @@ namespace OsEngine.MyEntity
         private bool _passVolume = true;
 
         /// <summary>
-        /// Флаг Разрешения на выставление Take ордера
+        /// Флаг Разрешения выставление TakeProfit ордера
         ///  </summary>
         public bool PassTake
         {
@@ -189,6 +192,44 @@ namespace OsEngine.MyEntity
         #region Methods ========================================
 
         /// <summary>
+        /// Update списков ордеров с обнуленными объемами
+        /// Урок 3-34 0:59:16
+        /// </summary>
+        public void SetVolumeStart()
+        {
+            if (Volume == 0 
+                && LimitVolume == 0 
+                && TakeVolume == 0)
+            {
+                ClearOrders(ref OrdersForOpen);
+                ClearOrders(ref OrdersForClose);
+            }
+        }
+
+
+        /// <summary>
+        /// Очистка списков ордеров от Исполненных и Снятых
+        /// Урок 3-34 1:01:28
+        /// </summary>
+        private void ClearOrders(ref List<Order> orders) 
+        {
+            List<Order> temp = new List<Order>();
+         
+            foreach (Order order in orders)
+            {
+                if (order != null
+                    && order.State != OrderStateType.Cancel
+                    && order.State != OrderStateType.Done)
+                {
+                    temp.Add(order);
+                }
+            }
+
+            orders = temp;
+        }
+
+
+        /// <summary>
         /// Поиск какой из Order обновился в списках OrdersForOpen/OrdersForClose и обновлением его параметров
         /// </summary>
         public bool NewOrder(Order newOrder)
@@ -221,7 +262,7 @@ namespace OsEngine.MyEntity
         }
 
         /// <summary>
-        /// Проверка на новую сделку: false - если сделка уже существовала, а если сделка новая - true и производим расчеты
+        /// Проверка на новую сделку: false - если сделка уже существовала, true - если сделка новая и производим расчеты
         /// Урок 3-31 04:22 - 32:24
         /// </summary>
         public bool AddMyTrade(MyTrade newTrade, Security security)
@@ -247,7 +288,7 @@ namespace OsEngine.MyEntity
 
 
         /// <summary>
-        /// Проверка на новую сделку: false - если сделка уже существовала, а если сделка новая - true и производим расчеты
+        /// Проверка на новую сделку: false - если сделка уже существовала, true - если сделка новая и производим расчеты
         /// Урок 3-31 12:17 - 30:37
         /// </summary>
         private void CalculatePosition(MyTrade myTrade, Security security)
@@ -418,7 +459,6 @@ namespace OsEngine.MyEntity
             OnPropertyChanged(nameof(LimitVolume));
             OnPropertyChanged(nameof(PassVolume));
             OnPropertyChanged(nameof(PassTake));
-
         }
 
         public string GetStringForSave()
@@ -437,6 +477,41 @@ namespace OsEngine.MyEntity
 
             return str;
         }
+
+        /// <summary>
+        /// Закрытие ордеров для уровня
+        /// Урок 3-34 0:27:27
+        /// </summary>
+        public void CancelAllOrders(IServer server, string header)
+        {
+            CancelOrders(OrdersForOpen, server);
+
+            CancelOrders(OrdersForClose, server);
+
+            RobotWindowVM.Log(header, GetStringForSave());
+        }
+
+        /// <summary>
+        /// Закрытие ордеров из списка
+        /// Урок 3-34 0:29:00
+        /// </summary>
+        private void CancelOrders(List<Order> orders, IServer server) 
+        {
+            foreach (Order order in orders)
+            {
+                if (order != null)
+                {
+                    if (order.State == OrderStateType.Activ
+                        || order.State == OrderStateType.Patrial
+                        || order.State == OrderStateType.Pending)
+                    {
+                        server.CancelOrder(order);                  // не используем CancelAllOrders, т.к. действует не для всех
+                        Thread.Sleep(30);                                 // на некоторых коннекторах ограничение по кол-ву заявок в сек
+                    }
+                }
+            }
+        }
+
 
         #endregion
 

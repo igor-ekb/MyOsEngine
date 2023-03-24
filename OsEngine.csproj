@@ -89,12 +89,21 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OkonkwoOandaV20, Version=1.0.7247.23935, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\OkonkwoOandaV20.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot, Version=2.1.2.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Core.2.1.2\lib\net45\OxyPlot.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf, Version=2.1.2.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Wpf.2.1.2\lib\net45\OxyPlot.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.Wpf.Shared, Version=2.1.2.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
+      <HintPath>..\packages\OxyPlot.Wpf.Shared.2.1.2\lib\net45\OxyPlot.Wpf.Shared.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net, Version=2.4.0.0, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -111,6 +120,7 @@
     <Reference Include="QUIKSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=eb70e0fec970faf8, processorArchitecture=MSIL">
       <HintPath>..\packages\QUIKSharp.1.0.0\lib\net45\QUIKSharp.dll</HintPath>
     </Reference>
+    <Reference Include="ReachFramework" />
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Vendors\RestSharp.dll</HintPath>
@@ -128,6 +138,7 @@
       <HintPath>..\packages\System.Memory.4.5.3\lib\netstandard1.1\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Printing" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
@@ -800,6 +811,8 @@
     <Compile Include="Market\Servers\Transaq\TransaqEntity\TransaqPortfolio.cs" />
     <Compile Include="Market\Servers\Transaq\TransaqEntity\TransaqPositions.cs" />
     <Compile Include="Market\Servers\Transaq\TransaqServer.cs" />
+    <None Include="Market\Servers\Transaq\TransaqServer.cs.BCK" />
+    <None Include="Market\Servers\Transaq\TransaqServer.cs.My" />
     <Compile Include="Market\Servers\ZB\EntityCreators\ZbMarketDepthCreator.cs" />
     <Compile Include="Market\Servers\ZB\EntityCreators\ZbOrderCreator.cs" />
     <Compile Include="Market\Servers\ZB\EntityCreators\ZbPortfolioCreator.cs" />
@@ -1314,6 +1327,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <None Include="Logging\LogErrorUi - Copy.xaml.BCK">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </None>
     <Page Include="Logging\LogErrorUi.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
