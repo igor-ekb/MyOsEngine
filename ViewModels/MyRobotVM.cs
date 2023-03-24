@@ -546,7 +546,7 @@ namespace OsEngine.ViewModels
 
         #region Fields  =====================================
 
-        // Внутренняя серия свечей по Бумаге с установкой дизайна свечей
+        // Внутреннее поле -  серия свечей по Бумаге с установкой дизайна свечей
         private CandleStickSeries _candleSeries = new CandleStickSeries             // Скопировали из OxyPlot 
         {
             Color = OxyColors.Black,
@@ -560,11 +560,11 @@ namespace OsEngine.ViewModels
             TrackerFormatString = "High: {2:0.00}\nLow: {3:0.00}\nOpen: {4:0.00}\nClose: {5:0.00}"
         };
 
-        private Portfolio _portfolio;                                       // Внутренняя Портфель
+        private Portfolio _portfolio;                             // Внутреннее поле - Портфель
 
-        public int NumberTab = 0;                                     // Идентификатор Робота, Порядковый номер при создании TAB
+        public int NumberTab = 0;                                 // Идентификатор Робота - Порядковый номер при создании TAB
 
-        private DateTime _lastTimeCandle = DateTime.MinValue;               // Внутренняя Текущее время свечи
+        private DateTime _lastTimeCandle = DateTime.MinValue;     // Внутреннее поле - Текущее время свечи
 
 
         #endregion
