@@ -601,7 +601,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Отсылка link юзеру     Урок 4-39  00:34:55
+        /// Отсылка link на чат(_botTg права админа)  юзеру     Урок 4-39  00:34:55
         /// </summary>
         private async void SendLinkToUser(long idUser)
         {
@@ -627,13 +627,13 @@ namespace OsEngine.ViewModels
             {
                 if (link != null)
                 {
-                    // Отправляем новый link на приглашение в группу Урок 4-39  00:40:00
+                    // Отправляем юзеру ссылку link на вступление в группу Урок 4-39  00:40:00
                     await _botTg.SendTextMessageAsync(idUser, link.InviteLink);
                 }
             }
             catch (Exception ex)
             {
-                Log("Telegram", "SendLinkToUser SendLink Error = " + ex.Message);
+                Log("Telegram", "SendLinkToUser InviteLink Error = " + ex.Message);
             }
         }
 
@@ -662,7 +662,7 @@ namespace OsEngine.ViewModels
         {
             long id = e.Message.From.Id;
 
-            // проверка, кто обратился
+            // проверка, кто обратился, состоит ли в моем списке 
             if (!IsMyUser(id)) return;
 
             MessageTg = e.Message.Text;
