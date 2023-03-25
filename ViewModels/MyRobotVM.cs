@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.RightsManagement;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -888,7 +889,7 @@ namespace OsEngine.ViewModels
         /// Кнопка Старт/Стоп Робота
         /// .......  + Урок 3-34 0:24:48 - 0:43:02
         /// </summary>
-        private void StartStop(object o)
+        public void StartStop(object o)
         {
             if (Server == null
                 || Server.ServerStatus == ServerConnectStatus.Disconnect) return;
@@ -1387,6 +1388,12 @@ namespace OsEngine.ViewModels
             Levels = levels;
             OnPropertyChanged(nameof(Levels));
 
+ 
+
+            // Посылаем сообщение в Телеграм через событие OnMessageTg - Урок 4-38 01:06:45
+            // а подписываемся при создании робота в AddTab() d RoboVM
+            OnMessageTg?.Invoke("Calculate count Levels = " + Levels.Count);
+
             // Сохраняем обновленные уровни и данные робота MyRobotVM.Save() в @"Parameters\Tabs\param_" + Head + ".txt"
             Save();
         }
@@ -1531,7 +1538,6 @@ namespace OsEngine.ViewModels
                 using (StreamWriter writer = new StreamWriter(@"Parameters\Tabs\param_" + Header + ".txt", false))
                 {
                     writer.WriteLine(Header);
-                    writer.WriteLine(NumberTab);
                     writer.WriteLine(ServerType);
                     writer.WriteLine(StringPortfolio);
                     writer.WriteLine(StartPoint);
@@ -1571,8 +1577,6 @@ namespace OsEngine.ViewModels
 
             string serverType = "";
 
-            int numberTab = NumberTab;
-
             ObservableCollection<Level> levels = new ObservableCollection<Level>();
 
             try
@@ -1581,7 +1585,6 @@ namespace OsEngine.ViewModels
                 using (StreamReader reader = new StreamReader(@"Parameters\Tabs\param_" + header + ".txt"))
                 {
                     Header = reader.ReadLine();
-                    numberTab = (int)GetDecimalForString(reader.ReadLine());
                     serverType = reader.ReadLine();
                     StringPortfolio = reader.ReadLine();
                     StartPoint = GetDecimalForString(reader.ReadLine());
@@ -1818,6 +1821,16 @@ namespace OsEngine.ViewModels
 
         public delegate void onSelectedSecurity();
         public event onSelectedSecurity OnSelectedSecurity;                 // Событие на создание новой вкладки Tab
+
+
+        /// <summary>
+        /// Создаем делегата и event
+        /// Урок 4-38 01:05:53
+        /// </summary>
+        public delegate void SendMessageTg(string message);
+        public event SendMessageTg OnMessageTg;
+
+
 
         #endregion
 

@@ -6,6 +6,7 @@ using OsEngine.Robots;
 using OsEngine.Views;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.Payments;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace OsEngine.ViewModels
 {
@@ -22,6 +29,9 @@ namespace OsEngine.ViewModels
         {
             ServerMaster.ServerCreateEvent += ServerMaster_ServerCreateEvent;
 
+            // Диспатчер для отдельного Task для телеграм Бота
+            _dispatcher = Dispatcher.CurrentDispatcher;
+
             Task.Run(() =>
             {
                 RecordLog();
@@ -29,7 +39,9 @@ namespace OsEngine.ViewModels
 
             Load();
 
-            ServerMaster.ActivateAutoConnection();                                  // Урок 3-32 01:00:48
+            ServerMaster.ActivateAutoConnection();                   // Урок 3-32 01:00:48
+
+            CreateTgBot();                                           // Урок 4-38 00:06:18   
         }
 
 
@@ -53,12 +65,47 @@ namespace OsEngine.ViewModels
         }
         public MyRobotVM _selectedRobot;
 
+        /// <summary>
+        /// Статус Телеграм Бота
+        /// Урок 4-38  0:12:35
+        /// </summary>
+        public string StateTg
+        {
+            get => _stateTg;
+
+            set
+            {
+                _stateTg = value;
+                OnPropertyChanged(nameof(StateTg));
+            }
+
+        }
+        private string _stateTg = "Disconnected...";
+
+        /// <summary>
+        /// Сообщение Телеграм Бота
+        /// Урок 4-38  0:31:46
+        /// </summary>
+        public string MessageTg
+        {
+            get => _messageTg;
+
+            set
+            {
+                _messageTg = value;
+                OnPropertyChanged(nameof(MessageTg));
+            }
+
+        }
+        private string _messageTg = "";
+
+
         #endregion
 
         #region Fields =====================================
 
         /// <summary>
-        /// Статическая очередь(чтобы исключить множественность одноременно запускаемых) окно для смены эмитента 
+        /// Статическая очередь(чтобы исключить множественность одновременно запускаемых) сообщений при смены эмитента 
         /// </summary>
         private static ConcurrentQueue<MessageForLog> _logMessages = new ConcurrentQueue<MessageForLog>();
 
@@ -69,6 +116,25 @@ namespace OsEngine.ViewModels
 
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>> MyTrades =
             new ConcurrentDictionary<string, ConcurrentDictionary<string, MyTrade>>();                        // Урок 3-33 00:07:43
+
+        private TelegramBotClient _botTg;
+
+        // Диспатчер отдельного Task для телеграм Бота
+        private Dispatcher _dispatcher ;
+
+        /// <summary>
+        /// список пользователей Телеграмм, с которыми будем взаимодействовать
+        /// Урок 4-38 0:24:10
+        /// </summary>
+        private List<long> _botUsers = new List<long>()
+        {
+            813088223,      // my id
+        };
+
+        private string _tokenPay = "381764678:TEST:53168";
+
+        // ig группы предыдущего курса     Урок 4-39  00:34:55
+        private long _idChannel = -1001664102103;
 
 
         #endregion
@@ -237,6 +303,9 @@ namespace OsEngine.ViewModels
 
             // Подписка на создание новой вкладки (запуск Save()  в param.txt обновленного списка роботов(TABs) 
             Robots.Last().OnSelectedSecurity += RobotWindowVM_OnSelectedSecurity;
+
+            //  Подписываемся на событие отправки сообщения в Телеграмм из MyRobotVM.Calculate() - Урок 4-38 01:07:02
+            Robots.Last().OnMessageTg += RobotWindowVM_OnMessageTg;
         }
 
 
@@ -261,9 +330,9 @@ namespace OsEngine.ViewModels
 
                 if (res == MessageBoxResult.Yes )
                 {
-                    if (File.Exists(@"Parameters\Tabs\param_" + header + ".txt"))
+                    if (System.IO.File.Exists(@"Parameters\Tabs\param_" + header + ".txt"))
                     {
-                        File.Delete(@"Parameters\Tabs\param_" + header + ".txt");
+                        System.IO.File.Delete(@"Parameters\Tabs\param_" + header + ".txt");
                     }
 
                     Robots.Remove(delRobot);
@@ -275,7 +344,7 @@ namespace OsEngine.ViewModels
 
 
         /// <summary>
-        /// Добавление событий в ObservableCollection _logMessages для дальнейшей записи в журнал
+        /// Добавление сообщений в ObservableCollection _logMessages для дальнейшей записи в журнал
         /// </summary>
         public static void Log(string name, string mess)
         {
@@ -422,6 +491,345 @@ namespace OsEngine.ViewModels
         {
             Save();                 // Сохранение в файл Parameters\param.txt имени/n и номера вкладки Tab
         }
+
+
+        /// <summary>
+        /// Метод  реакция на создание  новой вкладки Tab
+        /// Урок 4-38   0:06:35
+        /// </summary>
+        private void CreateTgBot()
+        {
+            /// Создаем отдельный Task для Телеграм Бота
+            /// Урок 4 - 38 0:14:48 - не забыть отправить в Dispatch !!!
+            Task.Run(() =>
+            {
+                try
+                {
+                    // name 
+                    _botTg = new TelegramBotClient("6140918556:AAEeNL3GqG58YpKnF3MWL73aLvaonEIzsOo");
+
+                    // [Obsolete версия 16.2]
+                    _botTg.StartReceiving();
+
+                    // Направляем StateTg в наш поток  -  Урок 4 - 38 0:15:49
+                    _dispatcher.Invoke(delegate ()
+                    {
+                        if (_botTg.BotId != null)
+                        {
+                            // Получаем BotId(присваивается когда произойдет соединение)   - Урок 4-38 0:13:46)
+                            StateTg = _botTg.BotId.ToString();
+
+                            // Подписываемся на событие Message Урок 4 - 38 0:18:00  !!!  [Obsolete версия 16.2]
+                            _botTg.OnMessage += _botTg_OnMessage;
+
+                            // Подписываемся на событие _botTg.OnUpdate Урок 4 - 38 0:18:46    !!!  [Obsolete версия 16.2]
+                            _botTg.OnUpdate += _botTg_OnUpdate;
+                        }
+                        else
+                        {
+                            StateTg = "Disconnected...";
+                            Log("Telegram", "State = Disconnected");
+                        }
+                        
+                    });
+
+                }
+                catch (Exception ex)
+                {
+                    Log("Telegram", "CreateTgBot Error = " + ex.Message);
+                }
+            });
+                
+        }
+
+        /// <summary>
+        /// async
+        /// [Obsolete Telegram 16.2 version]
+        /// </summary>
+        private async void _botTg_OnUpdate(object sender, Telegram.Bot.Args.UpdateEventArgs e)
+        {
+            try
+            {
+                //Если в Телеге нажали "Оплатить", нужно послать подтверждение PreCheckoutQuery  - Урок 4 - 39 0:19:20
+                if (e.Update.Type == UpdateType.PreCheckoutQuery)
+                {
+                    await _botTg.AnswerPreCheckoutQueryAsync(e.Update.PreCheckoutQuery.Id);
+                }
+                // Проверка того, что оплата произошла  - Урок 4 - 39 0:24:24
+                else if (e.Update.Type == UpdateType.Message
+                    && e.Update.Message.SuccessfulPayment != null
+                    && e.Update.Message.SuccessfulPayment.TelegramPaymentChargeId != null)
+                {
+                    // Размер полученного платежа в копейках
+                    int amount = e.Update.Message.SuccessfulPayment.TotalAmount / 100;
+
+                    // Id оплаты
+                    string paymentId = e.Update.Message.SuccessfulPayment.TelegramPaymentChargeId;
+
+                    MessageBox.Show("Прошла оплата на сумму " + amount + "руб.");
+
+                    // отправляем link юзеру
+                    SendLinkToUser(e.Update.Message.From.Id);
+                }
+
+
+                if (e.Update.CallbackQuery == null) return;
+
+                string callBack = e.Update.CallbackQuery.Data;
+
+                string[] split = callBack.Split('|');
+
+                if (string.IsNullOrEmpty(split[1])) return;
+
+                int ind = Convert.ToInt32(split[1]);
+
+                if (Robots.Count > ind)
+                {
+                    Robots[ind].StartStop(null);
+                }
+
+                await _botTg.SendTextMessageAsync(e.Update.CallbackQuery.From.Id, "Change state my bot");
+
+                SendMyBots(e.Update.CallbackQuery.From.Id);
+
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "_botTg_OnUpdate error = " + ex.Message);
+            }            
+        }
+
+
+        /// <summary>
+        /// Отсылка link юзеру     Урок 4-39  00:34:55
+        /// </summary>
+        private async void SendLinkToUser(long idUser)
+        {
+            //Урок 4-39  00:47:50
+            ChatInviteLink link = null;
+            try
+            {
+                // Создаем срок действия = Now + 1 day
+                DateTime dt = DateTime.Now.AddDays(1);
+
+                // Создаем link на приглашение в канал для 1 user
+                link = await _botTg.CreateChatInviteLinkAsync(_idChannel, dt, 1);
+
+                // Вносим user в список UnbanChatMemberAsync чата _idChannel
+                await _botTg.UnbanChatMemberAsync(_idChannel, idUser);
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "SendLinkToUser UnbanChatMember Error = " + ex.Message);
+            }
+
+            try
+            {
+                if (link != null)
+                {
+                    // Отправляем новый link на приглашение в группу Урок 4-39  00:40:00
+                    await _botTg.SendTextMessageAsync(idUser, link.InviteLink);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "SendLinkToUser SendLink Error = " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Удаление user из группы Урок 4-39  00:49:50
+        /// </summary>
+        private async void RemoveUserFromChanel(long idUser)
+        {
+            try
+            {
+                await _botTg.KickChatMemberAsync(_idChannel, idUser);
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "RemoveUserFromChanel  user = " + idUser + " = " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Взаимодействие с пользователем Телеграмм
+        /// Урок 4-38 0:28:35
+        /// </summary>
+        private async void _botTg_OnMessage(object sender, Telegram.Bot.Args.MessageEventArgs e)
+        {
+            long id = e.Message.From.Id;
+
+            // проверка, кто обратился
+            if (!IsMyUser(id)) return;
+
+            MessageTg = e.Message.Text;
+
+
+            // Пишем реакцию на команды из Телеграм (Пояснения  : Урок 4 - 38 0:50:35 - 0:51:04)
+            switch (e.Message.Text)
+            {
+                //Если нажали "MyBots", выводим список всех роботов - Урок 4 - 38 0:53:09
+                case "MyBots":
+                    SendMyBots(id);
+                    break;
+
+                //Если нажали "Pays", выводим список всех роботов - Урок 4 - 39 0:07:26
+                case "Pay":
+                    Payments(id);
+                    return;
+
+                //default:
+                //    break;
+            }
+
+            try
+            {
+                await _botTg.SendTextMessageAsync(id, "Select on action", replyMarkup: GetButtons());
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "_botTg_OnMessage = " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Payments. Метод асинхронный, поэтому используем метод async
+        /// Урок 4-39 0:07:46
+        /// <param id ="адресат"/param>
+        /// </summary>
+        private async void Payments(long id)
+        {
+            // Прайс лист Урок 4-39 0:12:56
+            List<LabeledPrice> prices = new List<LabeledPrice>();
+
+            prices.Add(new LabeledPrice("Цена", 49900));
+
+            try
+            {
+                Message mess = await _botTg.SendInvoiceAsync(id, "Ваш заказ", "Нажмите Оплатить и вы на все согласны", "Наш Товар",
+                    _tokenPay, "rub", prices);
+            }
+
+            catch (Exception ex)
+            {
+                Log("Telegram", "Payments = " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Составление списка всех роботов. Метод асинхронный, поэтому используем метод async
+        /// Урок 4-38 0:53:35
+        /// <param id ="адресат"/param>
+        /// </summary>
+        private async void SendMyBots(long id)
+        {
+            // Создаем список строк/столбцов состоящий из кнопок Урок 4-38 0:54:10
+            List<List<InlineKeyboardButton>> list = new List<List<InlineKeyboardButton>>();
+
+            for ( int i = 0; i< Robots.Count; i++)
+            {
+                // В Button дописываем Header + i(индекс робота)
+                InlineKeyboardButton button = 
+                    InlineKeyboardButton.WithCallbackData(Robots[i].Header + " = " + Robots[i].IsRun.ToString(), Robots[i].Header + "|"+ i);
+
+                // Кнопки состояния робота
+                //InlineKeyboardButton state = InlineKeyboardButton.WithCallbackData(Robots[i].IsRun.ToString(), Robots[i].IsRun.ToString());
+
+                list.Add(new List<InlineKeyboardButton>()
+                { 
+                    button,
+                    //state
+                });
+            }
+
+            InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(list);
+
+            try
+            {
+                await _botTg.SendTextMessageAsync(id, "My Robots:",  replyMarkup: inlineKeyboard);
+            }
+            catch (Exception ex)
+            {
+                Log("Telegram", "SendMyBots error = " + ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Урок 4-38 01:07:44
+        /// </summary>
+        private void RobotWindowVM_OnMessageTg(string message)
+        {
+            SendMessageTg(message);
+        }
+
+
+        /// <summary>
+        /// Ответы  пользователю Телеграмм, public  - т.е можно вызвать из любого места
+        /// Урок 4-38 0:33:57
+        /// </summary>
+        public async void SendMessageTg(string message)
+        {
+            if (string.IsNullOrEmpty(message)) return;
+
+            foreach (long id in _botUsers)
+            {
+                await _botTg.SendTextMessageAsync(id, message, replyMarkup: GetButtons());
+            }
+
+        }
+
+        /// <summary>
+        /// Создание кнопок для Телеграм Бота
+        /// (контекст Урок 4-38 0:40:12 - 0:41:22)    0:41:22 -
+        /// </summary>
+        private IReplyMarkup GetButtons()
+        {
+            ReplyKeyboardMarkup keys = new ReplyKeyboardMarkup();
+
+            keys.Keyboard = new List<List<KeyboardButton>>()
+            {
+                // первая строка кнопок --  Закомментировали ))
+                //new List<KeyboardButton>() { new KeyboardButton("Start"), new KeyboardButton("Stop") },
+
+                // Составим список кнопок все ботов Урок 4 - 38 0:52:22
+                new List<KeyboardButton>() 
+                {
+                    // Кнопка список кнопок все ботов Урок 4 - 38 0:52:22
+                    new KeyboardButton("MyBots"),
+
+                    // Добавляем кнопку тестовой оплаты   Урок 4-39 0:05:43
+                    new KeyboardButton("Pay")
+                }
+
+            };
+
+            // Уменьшение размеров кнопок Урок 4-38 0:50:08
+            keys.ResizeKeyboard = true;
+
+            return keys;
+        }
+
+
+        /// <summary>
+        /// Проверка на соответствие списоку пользователей Телеграмм, с которыми взаимодействуем
+        /// Урок 4-38 0:27:22
+        /// </summary>
+        private bool IsMyUser(long id)
+        {
+            foreach (long idUser in _botUsers)
+            {
+                if (idUser == id) return true;
+            }
+            return false;
+        }
+
+
 
         #endregion
     }

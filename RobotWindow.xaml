@@ -19,8 +19,12 @@
                         Command="{Binding CommandServersToConnect}"/>
                     <Button Content="Add Emitent"
                         Command="{Binding CommandAddEmitent}"/>
-                <TextBlock Text="{Binding StateTg}"
-                        Margin="10,7"/>
+                    <!--<TextBlock Text=" Tlg"
+                            Margin="10,7"/>-->
+                    <TextBlock Text="{Binding StateTg}"
+                        Margin="10,7,0,0"/>
+                    <TextBlock Text=" Mes:"
+                            Margin="10,7"/>
                 <TextBlock Text="{Binding MessageTg}"
                         Margin="10,7"/>
             </StackPanel>
