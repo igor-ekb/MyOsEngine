@@ -20,6 +20,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.Payments;
 using Telegram.Bot.Types.ReplyMarkups;
+using WebSocket4Net.Command;
 
 namespace OsEngine.ViewModels
 {
@@ -505,17 +506,18 @@ namespace OsEngine.ViewModels
             {
                 string botToken = "";
 
-                if (!System.IO.File.Exists(@"myParam.txt"))
+                if (!System.IO.File.Exists(@"myTelegram.txt"))
                 {
-                    MessageBox.Show("Token file myParam.txt is Absent !");
+                    MessageBox.Show("Token file myTelegram.txt is Absent !");
                     return;
                 }
 
                 try
                 {
-                    using (StreamReader reader = new StreamReader(@"myParam.txt"))
+                    using (StreamReader reader = new StreamReader(@"myTelegram.txt"))
                     {
                         botToken = reader.ReadLine();
+                        reader.ReadLine(Close);
                     }
                 }
                 catch (Exception ex)
