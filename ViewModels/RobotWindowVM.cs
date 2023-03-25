@@ -503,38 +503,33 @@ namespace OsEngine.ViewModels
             /// Урок 4 - 38 0:14:48 - не забыть отправить в Dispatch !!!
             Task.Run(() =>
             {
+                string botToken = "";
+
+                if (!System.IO.File.Exists(@"myParam.txt"))
+                {
+                    MessageBox.Show("Token file myParam.txt is Absent !");
+                    return;
+                }
+
                 try
                 {
-
-
-                    string botToken = "";
-
-
-
-                    if (System.IO.File.Exists(@"myParam.txt"))
+                    using (StreamReader reader = new StreamReader(@"myParam.txt"))
                     {
-                        try
-                        {
-                            using (StreamReader reader = new StreamReader(@"myParam.txt"))
-                            {
-                                botToken = reader.ReadLine();
-                            }
-
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Log("Telegram", "CreateTgBot ReadToken error = " + ex.Message);
-                        }
+                        botToken = reader.ReadLine();
                     }
+                }
+                catch (Exception ex)
+                {
+                    Log("Telegram", "CreateTgBot readToken error = " + ex.Message);
+                }
 
+                try
+                {
                     // name 
                     _botTg = new TelegramBotClient(botToken);
 
                     // [Obsolete версия 16.2]
                     _botTg.StartReceiving();
-
-
 
                     // Направляем StateTg в наш поток  -  Урок 4 - 38 0:15:49
                     _dispatcher.Invoke(delegate ()
