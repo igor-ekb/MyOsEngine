@@ -505,11 +505,36 @@ namespace OsEngine.ViewModels
             {
                 try
                 {
+
+
+                    string botToken = "";
+
+
+
+                    if (System.IO.File.Exists(@"myParam.txt"))
+                    {
+                        try
+                        {
+                            using (StreamReader reader = new StreamReader(@"myParam.txt"))
+                            {
+                                botToken = reader.ReadLine();
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("Telegram", "CreateTgBot ReadToken error = " + ex.Message);
+                        }
+                    }
+
                     // name 
-                    _botTg = new TelegramBotClient("6140918556:AAEeNL3GqG58YpKnF3MWL73aLvaonEIzsOo");
+                    _botTg = new TelegramBotClient(botToken);
 
                     // [Obsolete версия 16.2]
                     _botTg.StartReceiving();
+
+
 
                     // Направляем StateTg в наш поток  -  Урок 4 - 38 0:15:49
                     _dispatcher.Invoke(delegate ()
